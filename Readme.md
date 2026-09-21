@@ -8,6 +8,10 @@
          /   \
 ```
 
+```
+https://ibardon.github.io/wods/
+```
+
 Hola. Soy un padre de casi 45 años que un día descubrió que pesaba 140 kg y que las escaleras no tenían por que ser un enemigo final. Ahora rondo los 80 kg.
 
 Como el deporte no era precisamente mi gran pasion, hice lo que se me da mejor para motivarme: recoger datos. Porque si no puedes convertir algo en una tabla, una grafica o una lista de cosas hechas, parece que no ha ocurrido.
