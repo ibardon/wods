@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Programación Global — Semana</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0c10;
+      --card: #15171d;
+      --card2: #1b1e26;
+      --border: #2a2d38;
+      --text: #e8e9ed;
+      --sub: #9096a6;
+      --snatch: #4a9eff;
+      --cj: #d4a820;
+      --banca: #ff7b4a;
+      --deload: #555570;
+      --test: #4aff9e;
+      --box: #6a6f80;
+      --mob: #4ad4c8;
+      --dl: #b06aff;
+      --acc-inf: #e8c34a;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      margin: 0; background: var(--bg); color: var(--text);
+      font-family: 'IBM Plex Sans', sans-serif; padding-bottom: 60px;
+    }
+
+    h1, h2, h3 { font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.5px; margin: 0; }
+    .mono { font-family: 'IBM Plex Mono', monospace; }
+
+    header {
+      padding: 24px 20px 18px; border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, #12141a, var(--bg));
+    }
+    header h1 { font-size: 28px; line-height: 1; }
+    header .sub { color: var(--sub); font-size: 13px; margin-top: 6px; }
+
+    .stats { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+    .stat { flex: 1; min-width: 75px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 9px 6px; text-align: center; }
+    .stat .v { font-family: 'IBM Plex Mono', monospace; font-size: 15px; font-weight: 700; }
+    .stat .l { font-size: 9px; color: var(--sub); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+
+    .wrap { padding: 16px 16px 0; }
+
+    .warn {
+      background: rgba(255, 90, 90, 0.08); border: 1px solid rgba(255, 90, 90, 0.35);
+      border-radius: 10px; padding: 12px 14px; font-size: 12.5px; line-height: 1.5; margin-bottom: 10px;
+    }
+    .warn b { color: #ff5a5a; }
+    .warn.blue { border-color: rgba(74, 158, 255, 0.35); background: rgba(74, 158, 255, 0.08); }
+    .warn.blue b { color: var(--snatch); }
+    .warn.small { font-size: 11.5px; padding: 9px 12px; margin: 0 16px 12px; }
+
+    /* ---- MAPA SEMANAL ---- */
+    .weekmap { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 6px 14px 10px; margin-bottom: 6px; }
+    .weekmap .wm-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--sub); margin: 10px 0 4px; }
+    .day-row { display: flex; gap: 8px; align-items: flex-start; padding: 9px 0; border-bottom: 1px solid var(--border); }
+    .day-row:last-child { border-bottom: none; }
+    .day-name { width: 74px; flex-shrink: 0; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--sub); padding-top: 3px; }
+    .day-content { flex: 1; }
+    .tagchip { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; background: var(--card2); border: 1px solid var(--border); border-radius: 8px; padding: 3px 8px; margin: 2px 4px 2px 0; }
+    .tagchip .dot { width: 7px; height: 7px; }
+
+    /* ---- TABS ---- */
+    .tabbar {
+      display: flex; gap: 6px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+      padding: 10px 16px; position: sticky; top: 0; background: var(--bg);
+      border-bottom: 1px solid var(--border); z-index: 20; scrollbar-width: none;
+    }
+    .tabbar::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      flex-shrink: 0; font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600;
+      padding: 9px 15px; border-radius: 20px; border: 1px solid var(--border); background: var(--card);
+      color: var(--sub); display: flex; align-items: center; gap: 6px; touch-action: manipulation;
+    }
+    .tab-btn .dot { width: 7px; height: 7px; border-radius: 50%; }
+    .tab-btn.active { background: var(--tabcolor, var(--text)); color: var(--bg); border-color: var(--tabcolor, var(--text)); }
+    .tab-btn.active .dot { background: var(--bg) !important; }
+
+    .tab-panel { display: none; padding: 16px; }
+    .tab-panel.active { display: block; }
+
+    .day-head { margin-bottom: 14px; }
+    .day-head h2 { font-size: 22px; }
+    .day-head .sub { color: var(--sub); font-size: 12.5px; margin-top: 2px; }
+
+    .block-title {
+      font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--sub);
+      margin: 18px 0 8px; display: flex; align-items: center; gap: 7px;
+    }
+    .block-title:first-child { margin-top: 0; }
+    .block-title .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    .exwrap {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 4px 14px; margin-bottom: 4px;
+    }
+    .exwrap.pad { padding: 14px; }
+    .exwrap .desc { font-size: 13px; color: var(--sub); line-height: 1.5; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 300px; }
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -2px; }
+    td, th { white-space: nowrap; }
+    th:first-child, td:first-child { white-space: normal; }
+    th { font-family: 'IBM Plex Mono', monospace; text-align: left; color: var(--sub); font-weight: 600; padding: 9px 4px 6px; border-bottom: 1px solid var(--border); font-size: 10px; text-transform: uppercase; }
+    td { padding: 9px 4px; border-bottom: 1px solid var(--border); font-family: 'IBM Plex Mono', monospace; }
+    tr:last-child td { border-bottom: none; }
+
+    .note { font-size: 12px; color: var(--sub); line-height: 1.5; margin: 10px 0 14px; }
+    .note.tight { margin-top: 6px; margin-bottom: 10px; }
+
+    .pill { font-family: 'IBM Plex Mono', monospace; font-size: 11px; background: var(--card2); border: 1px solid var(--border); border-radius: 20px; padding: 4px 10px; color: var(--sub); display: inline-block; margin: 0 6px 10px 0; }
+
+    .checkpoint {
+      display: flex; align-items: center; gap: 8px; background: rgba(74, 255, 158, 0.08);
+      border: 1px solid rgba(74, 255, 158, 0.3); border-radius: 8px; padding: 8px 10px; margin: 4px 0 16px; font-size: 12.5px;
+    }
+    .checkpoint b { color: var(--test); font-family: 'IBM Plex Mono', monospace; }
+
+    .eras-ex { margin-bottom: 28px; }
+    .eras-ex:last-child { margin-bottom: 8px; }
+    .eras-ex h3 { font-size: 19px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+    .eras-ex h3 .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .eras-sub { font-size: 12px; color: var(--sub); text-transform: uppercase; letter-spacing: 0.6px; margin: 14px 0 6px; }
+
+    ul { margin: 6px 0; padding-left: 18px; font-size: 13px; line-height: 1.5; }
+    li { margin-bottom: 4px; }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>PROGRAMACIÓN GLOBAL</h1>
+    <div class="sub">Banca + Halterofilia + Accesorios + Rehab, por día de la semana</div>
+    <div class="stats">
+      <div class="stat"><div class="v">50→100</div><div class="l">Banca kg</div></div>
+      <div class="stat"><div class="v">35→44</div><div class="l">Snatch kg</div></div>
+      <div class="stat"><div class="v">40→52</div><div class="l">C&amp;J kg</div></div>
+      <div class="stat"><div class="v">5+2</div><div class="l">Sesiones/box</div></div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="warn blue"><b>Cómo leer esto:</b> cada pestaña de día trae ya todo su contenido junto (rehab + movilidad + fuerza + accesorios + WOD). La carga concreta de banca y peso muerto cambia por semana/Era — eso vive aparte, en la pestaña <b>ERAS</b>.</div>
+    <div class="warn blue"><b>Halterofilia:</b> Snatch + Clean van juntos en la clase del lunes con tu profesor — este documento no prescribe esa parte. Lo que sí cubre entero: banca (mié = sesión 1 de la Era · vie = sesión 2) + peso muerto + accesorios (mié/vie), y rehab de hombro/movilidad repartido en 3 días (mié/jue/vie).</div>
+    <div class="warn"><b>Recordatorio:</b> duplicar la banca es un objetivo de años. Los checkpoints de cada bloque se reajustan con cada test real, no son promesas.</div>
+
+    <div class="weekmap">
+      <div class="wm-title">Mapa semanal</div>
+      <div class="day-row">
+        <div class="day-name">LUNES</div>
+        <div class="day-content">
+          <span class="tagchip"><span class="dot" style="background:var(--snatch)"></span>Halterofilia: Snatch + Clean (clase, profesor)</span>
+          <span class="tagchip"><span class="dot" style="background:var(--box)"></span>WOD box</span>
+          <span class="tagchip"><span class="dot" style="background:var(--acc-inf)"></span>Accesorio - Inferior (reducido, si ese día es solo gimnásticos)</span>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-name">MARTES</div>
+        <div class="day-content"><span class="tagchip"><span class="dot" style="background:var(--deload)"></span>Descanso</span></div>
+      </div>
+      <div class="day-row">
+        <div class="day-name">MIÉRCOLES</div>
+        <div class="day-content">
+          <span class="tagchip"><span class="dot" style="background:var(--mob)"></span>Rehab hombro + movilidad dorsal</span>
+          <span class="tagchip"><span class="dot" style="background:var(--banca)"></span>Banca — sesión 1 de la Era</span>
+          <span class="tagchip"><span class="dot" style="background:var(--banca)"></span>Accesorio - Superior</span>
+          <span class="tagchip"><span class="dot" style="background:var(--box)"></span>Carrera/trote (probable) o Strength &amp; Cardio</span>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-name">JUEVES</div>
+        <div class="day-content">
+          <span class="tagchip"><span class="dot" style="background:var(--mob)"></span>Movilidad escapular + dorsal</span>
+          <span class="tagchip"><span class="dot" style="background:var(--box)"></span>WOD box</span>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-name">VIERNES</div>
+        <div class="day-content">
+          <span class="tagchip"><span class="dot" style="background:var(--mob)"></span>Rehab + movilidad hombro (pre-entreno)</span>
+          <span class="tagchip"><span class="dot" style="background:var(--banca)"></span>Banca — sesión 2 de la Era</span>
+          <span class="tagchip"><span class="dot" style="background:var(--dl)"></span>Deadlift</span>
+          <span class="tagchip"><span class="dot" style="background:var(--banca)"></span>Accesorio - Superior</span>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-name">SÁBADO</div>
+        <div class="day-content">
+          <span class="tagchip"><span class="dot" style="background:var(--box)"></span>WOD a morir (box, sin programar)</span>
+          <span class="tagchip"><span class="dot" style="background:var(--acc-inf)"></span>Accesorio - Inferior (completo, si no vas al WOD a morir)</span>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-name">DOMINGO</div>
+        <div class="day-content"><span class="tagchip"><span class="dot" style="background:var(--deload)"></span>Descanso</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabbar" id="tabbar">
+    <button class="tab-btn active" style="--tabcolor:var(--snatch)" onclick="showTab('lun', this)"><span class="dot" style="background:var(--snatch)"></span>LUN</button>
+    <button class="tab-btn" style="--tabcolor:var(--deload)" onclick="showTab('mar', this)"><span class="dot" style="background:var(--deload)"></span>MAR</button>
+    <button class="tab-btn" style="--tabcolor:var(--banca)" onclick="showTab('mie', this)"><span class="dot" style="background:var(--banca)"></span>MIÉ</button>
+    <button class="tab-btn" style="--tabcolor:var(--box)" onclick="showTab('jue', this)"><span class="dot" style="background:var(--box)"></span>JUE</button>
+    <button class="tab-btn" style="--tabcolor:var(--dl)" onclick="showTab('vie', this)"><span class="dot" style="background:var(--dl)"></span>VIE</button>
+    <button class="tab-btn" style="--tabcolor:var(--deload)" onclick="showTab('finde', this)"><span class="dot" style="background:var(--deload)"></span>S-D</button>
+    <button class="tab-btn" style="--tabcolor:var(--test)" onclick="showTab('eras', this)"><span class="dot" style="background:var(--test)"></span>ERAS</button>
+    <button class="tab-btn" style="--tabcolor:var(--acc-inf)" onclick="showTab('accinf', this)"><span class="dot" style="background:var(--acc-inf)"></span>ACC-INF</button>
+  </div>
+
+  <!-- ============ LUNES ============ -->
+  <div class="tab-panel active" id="tab-lun">
+    <div class="day-head"><h2>LUNES</h2><div class="sub">Halterofilia (clase) + WOD box</div></div>
+
+    <div class="block-title"><span class="dot" style="background:var(--snatch)"></span>Halterofilia — Snatch + Clean</div>
+    <div class="exwrap pad">
+      <div class="desc">Snatch y Clean (con o sin jerk) en la clase de halterofilia del lunes. La programación la lleva tu profesor — este documento no la toca, solo le reserva el día.</div>
+    </div>
+
+    <div class="block-title"><span class="dot" style="background:var(--box)"></span>WOD box</div>
+    <div class="exwrap pad">
+      <div class="desc">Clase del box a continuación, sin programar aquí.</div>
+    </div>
+
+    <div class="block-title"><span class="dot" style="background:var(--acc-inf)"></span>Accesorio - Inferior (versión reducida)</div>
+    <div class="exwrap pad">
+      <div class="desc">Solo si ese lunes es de gimnásticos y no hay halterofilia. Detalle completo en la pestaña <b class="mono" style="color:var(--acc-inf)">ACC-INF</b> (columna Lunes).</div>
+    </div>
+  </div>
+
+  <!-- ============ MARTES ============ -->
+  <div class="tab-panel" id="tab-mar">
+    <div class="day-head"><h2>MARTES</h2><div class="sub">Descanso</div></div>
+    <div class="exwrap pad" style="margin-bottom:14px;">
+      <div class="desc">Descanso. Sin programar. Los accesorios de banca se hacen los miércoles y viernes tras el trabajo principal, no este día.</div>
+    </div>
+  </div>
+
+  <!-- ============ MIÉRCOLES ============ -->
+  <div class="tab-panel" id="tab-mie">
+    <div class="day-head"><h2>MIÉRCOLES</h2><div class="sub">Banca sesión 1 (Era) + Accesorios + Carrera + Rehab</div></div>
+
+    <div class="block-title"><span class="dot" style="background:var(--mob)"></span>Rehab hombro + movilidad dorsal (activación)</div>
+    <div class="exwrap">
+      <div class="table-wrap">
+        <table>
+          <tr><th style="width:60%;">Ejercicio</th><th>Volumen</th></tr>
+          <tr><td>Rotación externa con banda</td><td>3x12 por lado</td></tr>
+          <tr><td>Rotación interna con banda</td><td>3x12 por lado</td></tr>
+          <tr><td>Face pull</td><td>3x15</td></tr>
+          <tr><td>T-spine extension (foam roller)</td><td>2x8</td></tr>
+          <tr><td>Open book (rotación torácica)</td><td>2x8 por lado</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="note tight">Antes de la banca como activación de hombro y dorsal. Baja fatiga, no debe restar a la sesión.</div>
+
+    <div class="block-title"><span class="dot" style="background:var(--banca)"></span>Banca — sesión 1 de la Era</div>
+    <div class="exwrap">
+      <div class="table-wrap">
+        <table>
+          <tr><td>Banca sesión 1 (primer día de la semana de cada Era)</td><td>ver carga/semana en pestaña <b class="mono" style="color:var(--test)">ERAS</b> (columna Miércoles)</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="block-title"><span class="dot" style="background:var(--banca)"></span>Accesorio - Superior (tras el trabajo principal)</div>
+    <div class="exwrap">
+      <div class="table-wrap">
+        <table style="min-width:420px;">
+          <tr><th style="width:52%;">Ejercicio</th><th>Series</th><th>Carga</th></tr>
+          <tr><td>Press banca inclinado</td><td>4</td><td>10-15kg</td></tr>
+          <tr><td>Elevación lateral hombro</td><td>4x10</td><td>8kg</td></tr>
+          <tr><td>Press estricto barra</td><td>4x8</td><td>30kg</td></tr>
+          <tr><td>Remo con DB</td><td>4x12</td><td>22.5kg</td></tr>
+          <tr><td>Curl bíceps</td><td>4x12</td><td>15kg</td></tr>
+          <tr><td>Curl barra Z</td><td>3x8</td><td>20kg</td></tr>
+          <tr><td>Dip banco</td><td>4x12</td><td>peso corporal</td></tr>
+          <tr><td>Extensión tríceps</td><td>4x12</td><td>12kg</td></tr>
+          <tr><td>Overhead triceps extension</td><td>4x10</td><td>12.5kg</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="note">A partir de Era 3, valorar recortar press estricto/incline si compite con la recuperación de hombro para el miércoles pesado.</div>
+
+    <div class="block-title"><span class="dot" style="background:var(--box)"></span>Carrera / trote o Strength &amp; Cardio</div>
+    <div class="exwrap pad">
+      <div class="desc">Carrera/trote probable, o sesión de Strength &amp; Cardio del box. Sin programar aquí en detalle. Si el volumen de banca + accesorios ha sido alto, puede ir en otro momento del día.</div>
+    </div>
+  </div>
+
+  <!-- ============ JUEVES ============ -->
+  <div class="tab-panel" id="tab-jue">
+    <div class="day-head"><h2>JUEVES</h2><div class="sub">Movilidad escapular + WOD box</div></div>
+
+    <div class="block-title"><span class="dot" style="background:var(--mob)"></span>Movilidad escapular + dorsal</div>
+    <div class="exwrap">
+      <div class="table-wrap">
+        <table>
+          <tr><th style="width:60%;">Ejercicio</th><th>Volumen</th></tr>
+          <tr><td>Scapular pull-ups</td><td>3x8</td></tr>
+          <tr><td>Band pull-apart</td><td>3x15</td></tr>
+          <tr><td>Scapular wall slide</td><td>2x10</td></tr>
+          <tr><td>Thread the needle</td><td>2x8 por lado</td></tr>
+          <tr><td>Extensión torácica en cuadrupedia con banda</td><td>2x10</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="note tight">Sesión corta (10-12min) de movilidad escapular y dorsal. Si el jueves entrenas en el box, hazla antes como calentamiento.</div>
+
+    <div class="block-title"><span class="dot" style="background:var(--box)"></span>WOD box</div>
+    <div class="exwrap pad">
+      <div class="desc">Clase del box, sin programar aquí. La banca ya no va este día — sesión 1 de la Era es el miércoles, sesión 2 el viernes.</div>
+    </div>
+  </div>
+
+  <!-- ============ VIERNES ============ -->
+  <div class="tab-panel" id="tab-vie">
+    <div class="day-head"><h2>VIERNES</h2><div class="sub">Rehab + Banca sesión 2 (Era) + Peso Muerto + Accesorios</div></div>
+
+    <div class="block-title"><span class="dot" style="background:var(--mob)"></span>Rehab + movilidad hombro (pre-entreno)</div>
+    <div class="exwrap">
+      <div class="table-wrap">
+        <table>
+          <tr><th style="width:60%;">Ejercicio</th><th>Volumen</th></tr>
+          <tr><td>Shoulder dislocates (palo/banda)</td><td>2x10</td></tr>
+          <tr><td>Extensión torácica sobre balón medicinal/disco (~10kg)</td><td>2x30-45"</td></tr>
+          <tr><td>Cross-body stretch</td><td>2x30" por lado</td></tr>
+          <tr><td>YTWs</td><td>2x10 cada letra</td></tr>
+          <tr><td>Scaption con mancuerna (2-4kg)</td><td>3x12</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="note tight">Va antes de la banca sesión 2, como activación — no se suma al final junto a los accesorios, que ya son 9 ejercicios. La extensión torácica con balón/disco es más intensa que el foam roller: apóyalo a la altura de las escápulas (no en zona lumbar), sin rebotar, y para si notas pinzamiento en vez de estiramiento.</div>
+
+    <div class="block-title"><span class="dot" style="background:var(--banca)"></span>Banca — sesión 2 de la Era</div>
+    <div class="exwrap">
+      <div class="table-wrap">
+        <table>
+          <tr><td>Banca sesión 2 (segundo día de la semana de cada Era)</td><td>ver carga/semana en pestaña <b class="mono" style="color:var(--test)">ERAS</b> (columna Viernes)</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="block-title"><span class="dot" style="background:var(--dl)"></span>Peso Muerto</div>
+    <div class="exwrap">
+      <div class="table-wrap">
+        <table>
+          <tr><td>Peso Muerto</td><td>ver carga/semana en pestaña <b class="mono" style="color:var(--test)">ERAS</b></td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="note tight">Va después de la banca sesión 2, con un ritmo deliberadamente más conservador — ese día ya carga banca + accesorios antes.</div>
+
+    <div class="block-title"><span class="dot" style="background:var(--banca)"></span>Accesorio - Superior (tras el trabajo principal)</div>
+    <div class="exwrap">
+      <div class="table-wrap">
+        <table style="min-width:420px;">
+          <tr><th style="width:52%;">Ejercicio</th><th>Series</th><th>Carga</th></tr>
+          <tr><td>Press banca inclinado</td><td>4</td><td>10-15kg</td></tr>
+          <tr><td>Elevación lateral hombro</td><td>4x10</td><td>8kg</td></tr>
+          <tr><td>Press estricto barra</td><td>4x8</td><td>30kg</td></tr>
+          <tr><td>Remo con DB</td><td>4x12</td><td>22.5kg</td></tr>
+          <tr><td>Curl bíceps</td><td>4x12</td><td>15kg</td></tr>
+          <tr><td>Curl barra Z</td><td>3x8</td><td>20kg</td></tr>
+          <tr><td>Dip banco</td><td>4x12</td><td>peso corporal</td></tr>
+          <tr><td>Extensión tríceps</td><td>4x12</td><td>12kg</td></tr>
+          <tr><td>Overhead triceps extension</td><td>4x10</td><td>12.5kg</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="note">A partir de Era 3, valorar recortar press estricto/incline si compite con la recuperación de hombro para el miércoles pesado.</div>
+  </div>
+
+  <!-- ============ FIN DE SEMANA ============ -->
+  <div class="tab-panel" id="tab-finde">
+    <div class="day-head"><h2>SÁBADO – DOMINGO</h2><div class="sub">WOD box (sáb) · Descanso (dom)</div></div>
+
+    <div class="block-title"><span class="dot" style="background:var(--box)"></span>Sábado — WOD a morir</div>
+    <div class="exwrap pad">
+      <div class="desc">WOD del box, sin programar aquí. A morir.</div>
+    </div>
+
+    <div class="block-title"><span class="dot" style="background:var(--acc-inf)"></span>Sábado — Accesorio - Inferior (versión completa)</div>
+    <div class="exwrap pad">
+      <div class="desc">Solo si ese sábado no vas al WOD a morir. Detalle completo en la pestaña <b class="mono" style="color:var(--acc-inf)">ACC-INF</b> (columna Sábado).</div>
+    </div>
+
+    <div class="block-title"><span class="dot" style="background:var(--deload)"></span>Domingo — Descanso</div>
+    <div class="exwrap pad">
+      <div class="desc">Descanso completo.</div>
+    </div>
+  </div>
+
+  <!-- ============ ERAS ============ -->
+  <div class="tab-panel" id="tab-eras">
+    <div class="day-head"><h2>PROGRESIÓN POR ERAS</h2><div class="sub">Banca 5 Eras · Peso Muerto · Testing</div></div>
+
+    <div class="eras-ex">
+      <h3><span class="dot" style="background:var(--banca)"></span>Banca — Era 1 · Cimentación</h3>
+      <div class="pill">Meses 1-6 · sem 1-24</div><div class="pill">kg reales, redondeo 5kg</div>
+      <div class="table-wrap">
+        <table style="min-width:400px;">
+          <tr><th>Sem</th><th>Miércoles · sesión 1</th><th>Viernes · sesión 2</th></tr>
+          <tr><td>1-3</td><td>5x8 @ 40kg</td><td>3x10 @ 30kg</td></tr>
+          <tr><td>4-6</td><td>5x8 @ 40kg</td><td>3x10 @ 35kg</td></tr>
+          <tr><td>7-9</td><td>5x6 @ 45kg</td><td>4x8 @ 35kg</td></tr>
+          <tr><td>10-11</td><td>4x5 @ 45kg</td><td>3x6 @ 40kg</td></tr>
+          <tr><td>12</td><td class="mono" style="color:var(--test)">Deload 30 + Test</td><td>2x5 @ 30kg</td></tr>
+          <tr><td>13-15</td><td>5x6 @ 45kg</td><td>4x8 @ 35kg</td></tr>
+          <tr><td>16-18</td><td>5x5 @ 45kg</td><td>3x8 pausada @ 35kg</td></tr>
+          <tr><td>19-21</td><td>4x5 @ 50kg</td><td>3x6 @ 40kg</td></tr>
+          <tr><td>22-23</td><td>4x4 @ 50kg</td><td>3x5 @ 40kg</td></tr>
+          <tr><td>24</td><td class="mono" style="color:var(--test)">Deload 35 + Test</td><td>2x5 @ 30kg</td></tr>
+        </table>
+      </div>
+      <div class="checkpoint">Sem 12: <b>~55kg</b> · Sem 24: <b>~65kg</b></div>
+      <div class="eras-sub">Eras 2-5</div>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Era</th><th>Meses</th><th>Rango</th><th>Patrón</th></tr>
+          <tr><td>2 · Fuerza-hip.</td><td>7-12</td><td>65→77kg</td><td>4-6 reps, 75-85%</td></tr>
+          <tr><td>3 · Fuerza</td><td>13-18</td><td>77→87kg</td><td>3-4 reps, 82-89%, pausada/board</td></tr>
+          <tr><td>4 · Fuerza avanz.</td><td>19-24</td><td>87→94kg</td><td>2-4 reps, 83-92%</td></tr>
+          <tr><td>5 · Pico</td><td>25-30</td><td>94→100kg</td><td>1-3 reps, 85-96%</td></tr>
+        </table>
+      </div>
+      <div class="note tight">Se convierten a kg redondeados de 5 en 5 cuando llegues a cada era, con el test más reciente como base — igual que hicimos con la Era 1.</div>
+    </div>
+
+    <div class="eras-ex">
+      <h3><span class="dot" style="background:var(--dl)"></span>Peso Muerto (Viernes)</h3>
+      <div class="pill">Semanas 1-24</div><div class="pill">kg reales, redondeo 5kg</div>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Sem</th><th>Peso / reps</th></tr>
+          <tr><td>1-3</td><td>4x5 @ 45kg</td></tr>
+          <tr><td>4-6</td><td>4x5 @ 50kg</td></tr>
+          <tr><td>7-9</td><td>4x4 @ 55kg</td></tr>
+          <tr><td>10-11</td><td>3x3 @ 60kg</td></tr>
+          <tr><td>12</td><td class="mono" style="color:var(--test)">Deload 40kg + Test</td></tr>
+          <tr><td>13-15</td><td>4x5 @ 50kg</td></tr>
+          <tr><td>16-18</td><td>4x4 @ 55kg</td></tr>
+          <tr><td>19-21</td><td>3x4 @ 60kg</td></tr>
+          <tr><td>22-23</td><td>3x3 @ 65kg</td></tr>
+          <tr><td>24</td><td class="mono" style="color:var(--test)">Deload 45kg + Test</td></tr>
+        </table>
+      </div>
+      <div class="checkpoint">Sem 12: <b>~75kg</b> · Sem 24: <b>~80kg</b></div>
+      <div class="note tight">Pesos en kg reales, redondeados de 5 en 5kg. Si un test (sem 12 o 24) da otro número, el tramo siguiente de esa tabla se recalcula desde ese resultado.</div>
+    </div>
+
+    <div class="block-title" style="margin-top:8px;"><span class="dot" style="background:var(--test)"></span>Testing — protocolo 1RM</div>
+    <div class="exwrap pad">
+      <ul>
+        <li>Banca: test cada 12 semanas (miércoles, en la sesión 1)</li>
+        <li>Peso muerto: test cada 12 semanas (viernes)</li>
+        <li>Snatch y Clean (con/sin jerk): los gestiona tu profesor, fuera de este documento</li>
+        <li>Spotter/rack de seguridad obligatorio en banca a partir de Era 2</li>
+        <li>Si en banca dos mesociclos seguidos no suman kg, revisar recuperación/nutrición antes de tocar el programa</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ ACCESORIO - INFERIOR ============ -->
+  <div class="tab-panel" id="tab-accinf">
+    <div class="day-head"><h2>ACCESORIO - INFERIOR</h2><div class="sub">Lunes (reducido) si no hay halterofilia · Sábado (completo) si no vas al WOD a morir</div></div>
+
+    <div class="warn blue"><b>Objetivo:</b> tapar lo que ni la halterofilia ni los WODs entrenan bien de forma directa: isquios en flexión de rodilla, aductores, control unilateral y bilateral de cuádriceps, y algo de abductor/glúteo. Mismos ejercicios ambos días — el lunes es un subconjunto reducido del sábado, no una sesión distinta. Todo con material de box (barra, mancuernas/KB, bandas, GHD, cajones), sin máquinas de gimnasio.</div>
+
+    <div class="table-wrap">
+      <table style="min-width:560px;">
+        <tr><th style="width:26%;">Ejercicio</th><th>Grupo principal</th><th>Equipo</th><th>Completo (Sábado)</th><th>Reducido (Lunes)</th></tr>
+        <tr><td>Nordic curl asistido <span class="mono" style="color:var(--sub);font-size:10.5px;">(alt: slider hamstring curl)</span></td><td>Isquios (excéntrico)</td><td>GHD, o toalla/discos + suelo</td><td>3x5 asistido</td><td>2x4 asistido</td></tr>
+        <tr><td>Copenhagen plank <span class="mono" style="color:var(--sub);font-size:10.5px;">(alt: Cossack squat con mancuerna/KB)</span></td><td>Aductores</td><td>Banco/cajón</td><td>3x20-30" por lado</td><td>2x20" por lado</td></tr>
+        <tr><td>RDL a una pierna</td><td>Isquios/glúteo + equilibrio</td><td>Mancuernas</td><td>3x8 por lado</td><td>2x8 por lado</td></tr>
+        <tr><td>Sentadilla búlgara <span class="pill" style="margin:0;padding:1px 6px;font-size:9.5px;">nuevo</span></td><td>Cuádriceps/glúteo unilateral</td><td>Mancuernas/KB (o sin peso)</td><td>3x8-10 por lado</td><td>2x6-8 por lado</td></tr>
+        <tr><td>Sentadilla goblet <span class="pill" style="margin:0;padding:1px 6px;font-size:9.5px;">nuevo</span></td><td>Cuádriceps/glúteo bilateral</td><td>Mancuerna/KB</td><td>3x10-12</td><td>—</td></tr>
+        <tr><td>Sentadilla trasera con barra <span class="pill" style="margin:0;padding:1px 6px;font-size:9.5px;">nuevo</span></td><td>Cuádriceps/glúteo bilateral (carga)</td><td>Barra</td><td>3x8</td><td>—</td></tr>
+        <tr><td>Zancada caminando o step-up a cajón</td><td>Cuádriceps unilateral</td><td>Mancuernas + cajón</td><td>3x10 por lado</td><td>—</td></tr>
+        <tr><td>Monster walk / lateral band walk <span class="mono" style="color:var(--sub);font-size:10.5px;">(alt: clamshell / suitcase carry)</span></td><td>Glúteo medio/abductor</td><td>Banda</td><td>3x15 pasos por lado</td><td>—</td></tr>
+        <tr><td>Hip thrust</td><td>Glúteo mayor</td><td>Barra</td><td>3x12</td><td>—</td></tr>
+      </table>
+    </div>
+    <div class="note tight">La versión reducida se queda con Nordic curl, Copenhagen plank, RDL a una pierna y ahora la búlgara: son los que más rinden por minuto (isquios + aductor + equilibrio + cuádriceps unilateral) y menos fatiga sistémica dejan, así que no compiten con los gimnásticos del lunes. Goblet, sentadilla trasera, zancada, hip thrust y band walk se reservan para el sábado, que tiene más margen de recuperación.</div>
+
+    <div class="note">
+      <b style="color:var(--acc-inf);">Búlgara, goblet y sentadilla trasera — sobre la carga:</b> las tres se cargan de forma progresiva, no son solo peso corporal.
+      <ul>
+        <li><b>Búlgara:</b> empieza sin peso 1-2 sesiones hasta controlar el equilibrio con el pie trasero elevado, luego pasa a una sola mancuerna/KB ligera (8-12kg) en el lado contrario a la pierna de apoyo, y sube a una en cada mano cuando la técnica sea sólida. Prioriza rango completo y control antes que kg.</li>
+        <li><b>Goblet squat:</b> sí lleva carga desde el principio — sostén una mancuerna/KB pegada al pecho. Empieza con un peso que te deje 2-3 reps en reserva en la serie de 10-12 y sube 2-2,5kg cuando las completes todas con buena técnica.</li>
+        <li><b>Sentadilla trasera con barra:</b> es el paso natural cuando el goblet se te queda corto de carga (normalmente cuando ya sostienes 24-32kg cómodo). Empieza solo con la barra 2-3 sesiones para fijar técnica, sube en saltos de 2,5-5kg y mantenla en RPE 6-7 — es accesorio de un día ya cargado con halterofilia/WOD, no busca 1RM.</li>
+      </ul>
+    </div>
+
+    <div class="note">
+      <b style="color:var(--acc-inf);">Alternativas al Nordic curl / glute-ham raise:</b> si te da respeto la caída del GHD, no hace falta arriesgar.
+      <ul>
+        <li><b>Nordic curl asistido:</b> mismo ejercicio pero con rango parcial (bájate solo 30-45°) y las manos listas para apoyarte en el suelo o en un cajón bajo al final del recorrido — así controlas la caída en vez de sufrirla. Sube el rango antes de quitar el apoyo de manos.</li>
+        <li><b>Con banda de asistencia:</b> banda anclada arriba (rig) rodeando el pecho/cadera para restar peso durante el descenso, igual que un pull-up asistido pero al revés.</li>
+        <li><b>Con compañero:</b> alguien te sujeta los pies (como el GHD) pero además te frena/ayuda a subir con una mano en el pecho — quita el factor "caída libre".</li>
+        <li><b>Slider hamstring curl (sin GHD):</b> tumbado boca arriba, talones sobre una toalla o discos que deslicen, cadera elevada en puente; flexiona rodillas arrastrando los talones hacia el glúteo y vuelve a extender. Cero riesgo de caída, mismo patrón de isquios en excéntrica/concéntrica. 3x10 (completo) / 2x8 (reducido).</li>
+      </ul>
+    </div>
+
+    <div class="note">
+      <b style="color:var(--acc-inf);">Alternativas a Monster walk y Copenhagen plank:</b>
+      <ul>
+        <li><b>Monster walk → Clamshell</b> con banda tumbado de lado (3x15 por lado): mismo grupo (glúteo medio/abductor), sin necesitar espacio para desplazarte.</li>
+        <li><b>Clamshell → Suitcase carry (paseo de granjero a un brazo):</b> si el clamshell tampoco te convence, carga una mancuerna/KB en una sola mano y camina 15-20m de ida y vuelta (3-4 pasadas por lado) sin dejar caer la cadera hacia el lado cargado. Es de pie, dinámico y usa solo lo que ya tienes en el box (mancuerna/KB) en vez de tumbarte en el suelo — trabaja el mismo control lateral de cadera (glúteo medio) pero de forma funcional/anti-inclinación en vez de aislado.</li>
+        <li><b>Copenhagen plank → Cossack squat con mancuerna/KB</b> en el pecho (3x8 por lado): es el sustituto directo — trabaja aductor y cuádriceps a la vez, con carga controlable en vez de depender solo del peso corporal en el banco.</li>
+      </ul>
+    </div>
+
+    <div class="note">Tiempos aproximados: completa ~28-30min, reducida ~12-14min. Progresión: sube reps antes que carga las primeras 4-6 semanas. En el Nordic curl, si el ROM completo es muy duro al principio, usa la versión asistida o la alternativa con slider — la clave es el control excéntrico, no forzar el rango.</div>
+  </div>
+
+  <div class="warn small"><b>Déficit vs. fuerza:</b> en déficit ahora mismo (~500kcal, hacia 76kg). Si en cualquiera de los tres levantamientos el peso baja pero la marca se estanca dos bloques seguidos, la señal es subir 150-200kcal de grasas antes de tocar el programa — no al revés.</div>
+
+  <script>
+    function showTab(id, btn) {
+      document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
+      document.getElementById('tab-' + id).classList.add('active');
+      document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById('tabbar').scrollLeft = btn.offsetLeft - 16;
+    }
+  </script>
+
+</body>
+
+</html>

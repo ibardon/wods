@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Programa Fuerza + Metcon · Isaac</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0f;--card:#14141c;--card-alt:#1a1a24;--border:#2a2a35;
+  --text:#f0f0f5;--text2:#9999a8;
+  --snatch:#4a9eff;--cj:#d4a820;--banca:#ff7b4a;--squat:#4aff9e;--deadlift:#b06aff;--complejo:#ff5a5a;
+  --rest:#3a3a45;--green:#4aff9e;
+}
+*{box-sizing:border-box;}
+body{margin:0;padding:16px 16px 32px;background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;line-height:1.5;max-width:680px;margin-left:auto;margin-right:auto;overflow-x:hidden;}
+body.pc-mode{max-width:100%;padding:16px 16px 32px;}
+h1{font-family:'Bebas Neue',sans-serif;font-size:25px;letter-spacing:0.5px;margin:4px 0 2px;}
+.subtitle{color:var(--text2);font-size:13px;margin:0 0 16px;}
+
+.principios{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:14px;}
+.principios h2{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:0.5px;margin:0;display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;}
+.principios h2 .chevron{font-size:12px;color:var(--text2);transition:transform 0.2s;transform:rotate(-90deg);}
+.principios:not(.collapsed) h2{margin:0 0 8px;}
+.principios:not(.collapsed) h2 .chevron{transform:rotate(0deg);}
+.principios.collapsed ul{display:none;}
+.principios ul{margin:0;padding-left:18px;font-size:13px;color:var(--text2);}
+.principios li{margin-bottom:5px;}
+
+/* === PROGRESO === */
+.progress-bar{display:flex;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:14px;}
+.progress-cell{flex:1;background:var(--card);padding:10px 6px;text-align:center;}
+.progress-cell .val{font-family:'Bebas Neue',sans-serif;font-size:20px;line-height:1;display:block;color:var(--green);}
+.progress-cell .lbl{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:0.6px;margin-top:2px;display:block;}
+.reset-bar{text-align:right;margin:-8px 0 14px;}
+.reset-btn{background:none;border:1px solid var(--border);color:var(--text2);font-family:'IBM Plex Mono',monospace;font-size:10px;padding:5px 10px;border-radius:6px;cursor:pointer;}
+.reset-btn:active{background:var(--card-alt);}
+
+/* === NAVEGACIÓN STICKY === */
+#prog-nav{position:sticky;top:0;z-index:100;background:var(--bg);padding:10px 0 0;border-bottom:1px solid var(--border);margin:0 -16px 14px;padding-left:16px;padding-right:16px;}
+.nav-week{display:flex;align-items:center;gap:8px;padding-bottom:8px;}
+.nav-btn{background:var(--card-alt);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:22px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;flex-shrink:0;line-height:1;padding:0;}
+.nav-btn:active{background:var(--border);}
+.nav-btn:disabled{opacity:0.3;cursor:default;}
+.nav-week-info{text-align:center;flex:1;min-width:0;}
+.nav-week-name{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.5px;line-height:1.1;}
+.nav-week-sub{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text2);margin-top:2px;}
+.nav-week-badge{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.4px;padding:2px 7px;border-radius:4px;background:rgba(74,158,255,0.15);color:var(--snatch);margin-top:3px;}
+.nav-week-badge.deload{background:rgba(85,85,112,0.3);color:#c2c2cf;}
+#day-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:10px;scrollbar-width:none;}
+#day-tabs::-webkit-scrollbar{display:none;}
+.day-tab{flex-shrink:0;font-family:'IBM Plex Mono',monospace;font-size:11px;padding:6px 10px;border-radius:6px;background:var(--card-alt);border:1px solid var(--border);color:var(--text2);cursor:pointer;touch-action:manipulation;white-space:nowrap;}
+.day-tab.active{background:rgba(74,158,255,0.18);border-color:var(--snatch);color:var(--snatch);}
+.day-tab.done{border-color:var(--green);}
+.day-tab:active{opacity:0.7;}
+body.pc-mode #day-tabs{display:none;}
+body.pc-mode #prog-nav{margin:0 -16px 14px;}
+body.pc-mode .week-body.active{display:grid !important;grid-template-columns:repeat(7,minmax(160px,1fr));gap:8px;overflow-x:auto;}
+body.pc-mode .day-card{display:flex !important;flex-direction:column;min-width:0;overflow:hidden;}
+body.pc-mode .exercise{display:flex;flex-direction:column;gap:1px;}
+body.pc-mode .exercise span,.pc-mode .ex-data,.pc-mode .block-label{font-size:11.5px;}
+body.pc-mode .day-name{font-size:14px;}
+body.pc-mode .day-card{padding:8px 10px;}
+body.pc-mode .metcon-box{font-size:11.5px;}
+body.pc-mode .metcon-list{margin:3px 0;padding-left:14px;}
+body.pc-mode .metcon-list li{margin-bottom:1px;}
+
+/* === SEMANAS Y DÍAS === */
+.week-name{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.5px;}
+.week-badge{font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;padding:3px 8px;border-radius:4px;background:rgba(74,158,255,0.15);color:var(--snatch);}
+.week-badge.deload-badge{background:rgba(85,85,112,0.3);color:#c2c2cf;}
+.week-dates{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text2);}
+.week{border:none;margin-bottom:0;background:transparent;overflow:visible;}
+.week-body{display:none;padding:0;}
+.week-body.active{display:block;}
+.day-card{border-left:3px solid var(--rest);background:var(--card-alt);border-radius:6px;padding:11px 13px;margin-top:0;display:none;}
+.day-card.active{display:block;}
+.day-card.snatch{border-left-color:var(--snatch);}
+.day-card.cj{border-left-color:var(--cj);}
+.day-card.banca{border-left-color:var(--banca);}
+.day-card.squat{border-left-color:var(--squat);}
+.day-card.deadlift{border-left-color:var(--deadlift);}
+.day-card.complejo{border-left-color:var(--complejo);}
+.day-card.tecnica{border-left-color:var(--text2);border-left-style:dashed;}
+.day-head{display:flex;justify-content:space-between;align-items:baseline;}
+.day-name{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:0.3px;}
+.day-check{display:flex;align-items:center;gap:5px;}
+.day-check input{width:16px;height:16px;accent-color:var(--green);cursor:pointer;}
+.day-check label{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:0.4px;cursor:pointer;}
+.day-meta{display:flex;justify-content:space-between;align-items:center;margin-top:2px;margin-bottom:6px;}
+.tag{font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.4px;padding:2px 7px;border-radius:4px;}
+.tag.snatch{background:rgba(74,158,255,0.15);color:var(--snatch);}
+.tag.cj{background:rgba(212,168,32,0.15);color:var(--cj);}
+.tag.banca{background:rgba(255,123,74,0.15);color:var(--banca);}
+.tag.squat{background:rgba(74,255,158,0.15);color:var(--squat);}
+.tag.deadlift{background:rgba(176,106,255,0.15);color:var(--deadlift);}
+.tag.complejo{background:rgba(255,90,90,0.15);color:var(--complejo);}
+.tag.tecnica{background:transparent;border:1px dashed var(--text2);color:var(--text2);}
+.day-duration{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text2);}
+.block-label{font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text2);margin:9px 0 3px;}
+.block-label:first-of-type{margin-top:2px;}
+.exercise{display:flex;justify-content:space-between;gap:10px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13.5px;}
+.exercise:last-child{border-bottom:none;}
+.ex-data{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--text2);white-space:nowrap;text-align:right;}
+.metcon-box{background:rgba(255,123,74,0.08);border-radius:6px;padding:8px 10px;margin-top:4px;}
+.metcon-title{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--banca);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px;}
+.metcon-list{font-size:13px;color:var(--text);margin:0;padding-left:16px;}
+.metcon-list li{margin-bottom:2px;}
+.note{font-size:12px;color:var(--text2);font-style:italic;margin-bottom:8px;}
+footer{margin-top:18px;padding-top:14px;border-top:1px solid var(--border);font-size:12px;color:var(--text2);}
+</style>
+</head>
+<body>
+
+<h1>Programa Fuerza + Metcon</h1>
+<p class="subtitle">Isaac · 7 días/semana · 12 semanas · % de 1RM</p>
+
+<div class="principios collapsed" onclick="this.classList.toggle('collapsed')">
+  <h2>Cómo está montado <span class="chevron">▾</span></h2>
+  <ul>
+    <li>Cada día combina un bloque de <strong>fuerza</strong> (levantamiento principal + accesorio, en % de tu 1RM) con un <strong>metcon</strong> corto.</li>
+    <li>Rotación semanal de foco: Lunes Snatch · Martes Banca · Miércoles Clean &amp; Jerk · Jueves Sentadilla · Viernes Peso Muerto · Sábado Complejo Oly · Domingo técnica ligera.</li>
+    <li>3 bloques de 4 semanas (acumulación → intensificación → pico), con el metcon cambiando de formato en cada bloque (EMOM → AMRAP → For Time/Chipper) para no repetir siempre lo mismo.</li>
+    <li>Semana 12 es descarga: menos volumen y metcons suaves, sin buscar intensidad.</li>
+    <li>Domingo es tu válvula de escape — técnica ligera + finisher corto, no un día duro.</li>
+  </ul>
+</div>
+
+<div class="progress-bar">
+  <div class="progress-cell"><span class="val" id="prog-total">0/84</span><span class="lbl">sesiones</span></div>
+  <div class="progress-cell"><span class="val" id="prog-week">0/7</span><span class="lbl">esta semana</span></div>
+  <div class="progress-cell"><span class="val" id="prog-pct">0%</span><span class="lbl">completado</span></div>
+</div>
+<div class="reset-bar"><button class="reset-btn" onclick="resetProgress()">↺ Reiniciar progreso</button></div>
+
+<div id="prog-nav">
+  <div class="nav-week">
+    <button class="nav-btn" id="nav-prev" onclick="navigateWeek(-1)">&#8249;</button>
+    <div class="nav-week-info">
+      <div class="nav-week-name" id="nav-week-name"></div>
+      <div class="nav-week-sub" id="nav-week-dates"></div>
+      <div><span class="nav-week-badge" id="nav-week-badge"></span></div>
+    </div>
+    <button class="nav-btn" id="nav-next" onclick="navigateWeek(1)">&#8250;</button>
+  </div>
+  <div id="day-tabs"></div>
+</div>
+
+<div id="weeks"></div>
+
+<footer>Programa 7d/semana · 12 semanas · generado para Isaac</footer>
+
+<script>
+// ===== DATOS BASE =====
+var liftDays = [
+  {code:'LUN', name:'Lunes', tipo:'snatch', focus:'Snatch',
+    fuerza:function(pct,acc){return [{name:'Snatch',data:'5x2 @ '+pct+'%'},{name:'Sentadilla trasera',data:'3x5 @ '+acc+'%'}];}},
+  {code:'MAR', name:'Martes', tipo:'banca', focus:'Banca',
+    fuerza:function(pct,acc){return [{name:'Press banca',data:'4x4 @ '+pct+'%'},{name:'Remo horizontal (barra/mancuerna)',data:'3x8 @ '+acc+'%'}];}},
+  {code:'MIE', name:'Miércoles', tipo:'cj', focus:'Clean & Jerk',
+    fuerza:function(pct,acc){return [{name:'Clean & jerk',data:'5x2 @ '+pct+'%'},{name:'Sentadilla frontal',data:'3x5 @ '+acc+'%'}];}},
+  {code:'JUE', name:'Jueves', tipo:'squat', focus:'Sentadilla',
+    fuerza:function(pct,acc){return [{name:'Sentadilla trasera',data:'4x5 @ '+pct+'%'},{name:'Peso muerto rumano',data:'3x8 @ '+acc+'%'}];}},
+  {code:'VIE', name:'Viernes', tipo:'deadlift', focus:'Peso Muerto',
+    fuerza:function(pct,acc){return [{name:'Peso muerto',data:'4x3 @ '+pct+'%'},{name:'Press banca (2º toque)',data:'3x6 @ '+acc+'%'}];}},
+  {code:'SAB', name:'Sábado', tipo:'complejo', focus:'Complejo Oly',
+    fuerza:function(pct,acc){return [{name:'Complejo: Snatch + Snatch balance + OHS',data:'5 series @ '+pct+'%'},{name:'Foco técnico',data:'no busca máximo'}];}},
+  {code:'DOM', name:'Domingo', tipo:'tecnica', focus:'Técnica ligera',
+    fuerza:function(pct,acc){return [{name:'Técnica: Snatch o C&J, barra ligera',data:'5x3'},{name:'Sin carga máxima',data:'foco 100% posición'}];}}
+];
+
+// 4 variantes de metcon por día (bloque 1 / bloque 2 / bloque 3 / deload semana 12)
+var metconVariants = {
+  LUN: [
+    {title:'AMRAP 18', lines:['10 wall balls (9 kg)','8 KB swings (16 kg)','6 burpees','200 m row / bici (cal)']},
+    {title:'AMRAP 20', lines:['6 TTB (toes-to-bar)','10 DB push press (2×10 kg)','8 box jumps (60 cm)','250 m bici (cal)']},
+    {title:'5 rondas for time', lines:['10 DB snatch alternado (12,5 kg)','8 ring rows','6 TTB','200 m carrera']},
+    {title:'AMRAP 10 (deload — RPE bajo)', lines:['8 wall balls (6 kg)','6 KB swings (12 kg)','150 m row suave']}
+  ],
+  MAR: [
+    {title:'AMRAP 12', lines:['10 push-ups','8 ring rows','12 sit-ups']},
+    {title:'4 rondas for time', lines:['10 KB swings (16 kg)','8 box step-overs (50 cm)','6 ring rows','200 m carrera']},
+    {title:'AMRAP 16', lines:['8 DB thrusters (2×15 kg)','10 box jumps (50 cm)','200 m farmer carry (2×20 kg KB)']},
+    {title:'AMRAP 8 (deload)', lines:['6 push-ups','8 sit-ups','100 m trote suave']}
+  ],
+  MIE: [
+    {title:'AMRAP 18', lines:['10 wall balls (9 kg)','8 box jumps (50 cm)','150 m farmer carry (2×20 kg KB)','200 m row (cal)']},
+    {title:'For time (cap 16 min)', lines:['21-15-9: power clean ligero (30 kg)','+ burpees']},
+    {title:'5 rondas for time', lines:['8 DB push press (2×12,5 kg)','10 box step-overs (45 cm)','6 ring rows','200 m carrera']},
+    {title:'2 rondas — calidad, no velocidad (deload)', lines:['6 KB swings (12 kg)','5 box step-overs','100 m trote','4 ring rows']}
+  ],
+  JUE: [
+    {title:'Chipper (cap 15 min)', lines:['20 cal bike','20 KB swings (16 kg)','20 box step-ups (50 cm)','20 sit-ups']},
+    {title:'AMRAP 20', lines:['8 devil press (2×10 kg)','8 wall balls (9 kg)','200 m farmer carry (2×20 kg KB)','200 m row (cal)']},
+    {title:'For time (cap 18 min)', lines:['15-12-9: thrusters (barra 30 kg) + burpees','+ 15-12-9 pull-ups']},
+    {title:'10 min suave (deload)', lines:['10 air squats','10 sit-ups','200 m paseo']}
+  ],
+  VIE: [
+    {title:'EMOM 12', lines:['Impares: 12 KB swings (16 kg)','Pares: 10 box jumps (50 cm)']},
+    {title:'Intervalos 5x3′ on / 1′ off', lines:['Remo — máx calorías por intervalo']},
+    {title:'EMOM 16', lines:['Min 1: 10 burpees','Min 2: 12 wall balls (9 kg)','Min 3: 8 pull-ups','Min 4: descanso']},
+    {title:'EMOM 8 (deload)', lines:['8 KB swings suaves (12 kg)','8 sit-ups, alternando minutos']}
+  ],
+  SAB: [
+    {title:'AMRAP 20', lines:['400 m carrera','15 thrusters ligeros (barra 30 kg)','15 ring rows / pull-ups']},
+    {title:'For time (cap 20 min)', lines:['5 rondas: 15 wall balls (9 kg) + 12 box jumps (50 cm) + 9 burpees']},
+    {title:'AMRAP 18', lines:['20 KB swings (16 kg)','15 push-ups','10 box jumps (60 cm)','200 m carrera']},
+    {title:'AMRAP 12 (deload)', lines:['10 air squats','10 sit-ups','200 m carrera suave']}
+  ],
+  DOM: [
+    {title:'Tabata 8 rondas (20″ on / 10″ off)', lines:['Air squats']},
+    {title:'Tabata 8 rondas (20″ on / 10″ off)', lines:['Mountain climbers']},
+    {title:'EMOM 8', lines:['30″ plank + 30″ descanso, alternando con 10 sit-ups']},
+    {title:'Movilidad + 5′ remo suave (deload)', lines:['Sin metcon intenso — semana de descarga']}
+  ]
+};
+
+var metconDuration = ['18-20 min','20-22 min','16-22 min','8-12 min'];
+
+var blocks = [
+  {label:'Bloque 1 · Acumulación', weeks:[1,2,3,4], pct:{1:65,2:68,3:70,4:72}},
+  {label:'Bloque 2 · Intensificación', weeks:[5,6,7,8], pct:{5:75,6:77,7:80,8:82}},
+  {label:'Bloque 3 · Pico + Deload', weeks:[9,10,11,12], pct:{9:85,10:88,11:90,12:55}}
+];
+
+function variantIndex(week){ if(week===12) return 3; return Math.floor((week-1)/4); }
+function weekBlock(week){ for(var i=0;i<blocks.length;i++){ if(blocks[i].weeks.indexOf(week)>=0) return blocks[i]; } return blocks[0]; }
+
+// ===== RENDER =====
+var weeksEl = document.getElementById('weeks');
+for(var week=1; week<=12; week++){
+  (function(week){
+    var block = weekBlock(week);
+    var pct = block.pct[week];
+    var isDeload = week===12;
+    var vIdx = variantIndex(week);
+
+    var weekDiv = document.createElement('div');
+    weekDiv.className = 'week';
+    weekDiv.dataset.week = week;
+
+    var body = document.createElement('div');
+    body.className = 'week-body';
+    body.dataset.badge = isDeload ? 'Descarga' : block.label;
+    body.dataset.badgeClass = isDeload ? 'deload-badge' : '';
+    body.dataset.dates = isDeload ? 'semana 12' : block.label.split(' · ')[1];
+
+    liftDays.forEach(function(day){
+      var acc = isDeload ? Math.max(pct-15,40) : pct-10;
+      var fuerzaLines = day.fuerza(pct,acc);
+      var metcon = metconVariants[day.code][vIdx];
+      var dayKey = 'wk'+week+'-'+day.code;
+
+      var card = document.createElement('div');
+      card.className = 'day-card '+day.tipo;
+      card.dataset.key = dayKey;
+
+      var html = '';
+      html += '<div class="day-head"><span class="day-name">'+day.name+'</span>';
+      html += '<span class="day-check"><input type="checkbox" id="chk-'+dayKey+'" data-key="'+dayKey+'" data-week="'+week+'" onclick="event.stopPropagation();toggleDone(this)"><label for="chk-'+dayKey+'">Hecho</label></span></div>';
+      html += '<div class="day-meta"><span class="tag '+day.tipo+'">'+day.focus+'</span><span class="day-duration">~'+(isDeload?'25':'45')+' min</span></div>';
+      html += '<div class="block-label">Fuerza</div>';
+      fuerzaLines.forEach(function(ex){
+        html += '<div class="exercise"><span>'+ex.name+'</span><span class="ex-data">'+ex.data+'</span></div>';
+      });
+      html += '<div class="block-label">Metcon ('+metconDuration[vIdx]+')</div>';
+      html += '<div class="metcon-box"><div class="metcon-title">'+metcon.title+'</div><ul class="metcon-list">';
+      metcon.lines.forEach(function(l){ html += '<li>'+l+'</li>'; });
+      html += '</ul></div>';
+
+      card.innerHTML = html;
+      body.appendChild(card);
+    });
+
+    weekDiv.appendChild(body);
+    weeksEl.appendChild(weekDiv);
+  })(week);
+}
+
+// ===== PROGRESO / PERSISTENCIA =====
+function storageGet(){
+  try{ return JSON.parse(localStorage.getItem('isaac_fuerza_metcon_progress')||'{}'); }catch(e){ return window.__progressMemory||{}; }
+}
+function storageSet(obj){
+  try{ localStorage.setItem('isaac_fuerza_metcon_progress', JSON.stringify(obj)); }catch(e){ window.__progressMemory=obj; }
+}
+function toggleDone(input){
+  var st = storageGet();
+  st[input.dataset.key] = input.checked;
+  storageSet(st);
+  updateProgress();
+}
+function resetProgress(){
+  if(!confirm('¿Reiniciar todo el progreso marcado?')) return;
+  storageSet({});
+  updateProgress();
+}
+function updateProgress(){
+  var st = storageGet();
+  var all = document.querySelectorAll('input[type=checkbox][data-key]');
+  var totalDone = 0, perWeek = {};
+  all.forEach(function(chk){
+    var done = !!st[chk.dataset.key];
+    chk.checked = done;
+    if(done) totalDone++;
+    var w = chk.dataset.week;
+    perWeek[w] = (perWeek[w]||0) + (done?1:0);
+  });
+  document.getElementById('prog-total').textContent = totalDone+'/84';
+  document.getElementById('prog-pct').textContent = Math.round(totalDone/84*100)+'%';
+  var curWeek = perWeek[state.week+1] || 0;
+  document.getElementById('prog-week').textContent = curWeek+'/7';
+  buildDayTabs();
+}
+
+// ===== NAVEGACIÓN (patrón sticky nav + day-tabs) =====
+var state = {week:0, day:0};
+function getWeeks(){ return document.querySelectorAll('.week'); }
+function saveNavState(){ try{ localStorage.setItem('prog_fm_nav', JSON.stringify(state)); }catch(e){} }
+function loadNavState(){ try{ var s=localStorage.getItem('prog_fm_nav'); if(s){ var p=JSON.parse(s); if(typeof p.week==='number') return p; } }catch(e){} return null; }
+
+function updateNav(){
+  var weeks = getWeeks();
+  var week = weeks[state.week];
+  var body = week.querySelector('.week-body');
+  document.getElementById('nav-week-name').textContent = 'Semana '+(state.week+1);
+  document.getElementById('nav-week-dates').textContent = body.dataset.dates;
+  var badge = document.getElementById('nav-week-badge');
+  badge.textContent = body.dataset.badge;
+  badge.className = 'nav-week-badge'+(body.dataset.badgeClass?' '+body.dataset.badgeClass:'');
+  document.getElementById('nav-prev').disabled = state.week===0;
+  document.getElementById('nav-next').disabled = state.week===weeks.length-1;
+}
+function buildDayTabs(){
+  var weeks = getWeeks();
+  var days = weeks[state.week].querySelectorAll('.day-card');
+  var st = storageGet();
+  var tabsEl = document.getElementById('day-tabs');
+  tabsEl.innerHTML = '';
+  days.forEach(function(d,i){
+    var name = d.querySelector('.day-name');
+    var tab = document.createElement('button');
+    tab.className = 'day-tab'+(i===state.day?' active':'')+(st[d.dataset.key]?' done':'');
+    tab.textContent = name ? name.textContent : ('Día '+(i+1));
+    (function(idx){ tab.addEventListener('click', function(){ showDay(idx); }); })(i);
+    tabsEl.appendChild(tab);
+  });
+  var at = tabsEl.querySelector('.day-tab.active');
+  if(at) setTimeout(function(){ at.scrollIntoView({behavior:'instant', block:'nearest', inline:'center'}); }, 50);
+}
+function showDay(dayIdx){
+  var weeks = getWeeks();
+  var days = weeks[state.week].querySelectorAll('.day-card');
+  days.forEach(function(d){ d.classList.remove('active'); });
+  if(days[dayIdx]) days[dayIdx].classList.add('active');
+  state.day = dayIdx;
+  document.querySelectorAll('.day-tab').forEach(function(t,i){ t.classList.toggle('active', i===dayIdx); });
+  var at = document.querySelectorAll('.day-tab')[dayIdx];
+  if(at) at.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
+  window.scrollTo(0,0);
+  saveNavState();
+}
+function showWeek(weekIdx){
+  var weeks = getWeeks();
+  weeks.forEach(function(w){ w.querySelector('.week-body').classList.remove('active'); });
+  weeks[weekIdx].querySelector('.week-body').classList.add('active');
+  state.week = weekIdx; state.day = 0;
+  updateNav(); buildDayTabs(); showDay(0);
+  window.scrollTo(0,0); saveNavState();
+  updateProgressWeekOnly();
+}
+function updateProgressWeekOnly(){
+  var st = storageGet();
+  var days = getWeeks()[state.week].querySelectorAll('.day-card');
+  var done = 0;
+  days.forEach(function(d){ if(st[d.dataset.key]) done++; });
+  document.getElementById('prog-week').textContent = done+'/7';
+}
+function navigateWeek(delta){
+  var weeks = getWeeks();
+  var ni = Math.max(0, Math.min(weeks.length-1, state.week+delta));
+  if(ni!==state.week) showWeek(ni);
+}
+
+// ===== INIT =====
+(function(){
+  var saved = loadNavState();
+  var pos = saved || {week:0, day:0};
+  var weeks = getWeeks();
+  pos.week = Math.max(0, Math.min(weeks.length-1, pos.week));
+  var days = weeks[pos.week].querySelectorAll('.day-card');
+  pos.day = Math.max(0, Math.min(days.length-1, pos.day));
+  state = pos;
+  weeks[state.week].querySelector('.week-body').classList.add('active');
+  updateNav(); buildDayTabs();
+  if(days[state.day]) days[state.day].classList.add('active');
+  updateProgress();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Programación Mensual Strong · Isaac</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0f;--card:#14141c;--card-alt:#1a1a24;--border:#2a2a35;
+  --text:#f0f0f5;--text2:#9999a8;
+  --d1:#4aff9e;--d2:#ff7b4a;--d3:#b06aff;--d4:#ffb347;--rest:#5a5a6a;
+  --f1:#4a9eff;--f2:#d4a820;--f3:#ff7b4a;--f4:#ff5a5a;
+  --snatch:#4a9eff;--cj:#d4a820;
+  --green:#4aff9e;
+}
+*{box-sizing:border-box;}
+body{margin:0;padding:16px 16px 32px;background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;line-height:1.5;max-width:680px;margin-left:auto;margin-right:auto;overflow-x:hidden;}
+h1{font-family:'Bebas Neue',sans-serif;font-size:25px;letter-spacing:0.5px;margin:4px 0 2px;}
+.subtitle{color:var(--text2);font-size:13px;margin:0 0 16px;}
+
+.principios{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:14px;}
+.principios h2{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:0.5px;margin:0;display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;min-height:48px;touch-action:manipulation;}
+.principios h2 .chevron{font-size:12px;color:var(--text2);transition:transform 0.2s;transform:rotate(-90deg);}
+.principios:not(.collapsed) h2{margin:0 0 8px;}
+.principios:not(.collapsed) h2 .chevron{transform:rotate(0deg);}
+.principios.collapsed ul{display:none;}
+.principios ul{margin:0;padding-left:18px;font-size:13px;color:var(--text2);}
+.principios li{margin-bottom:5px;}
+
+.progress-bar{display:flex;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:14px;}
+.progress-cell{flex:1;background:var(--card);padding:10px 6px;text-align:center;}
+.progress-cell .val{font-family:'Bebas Neue',sans-serif;font-size:20px;line-height:1;display:block;color:var(--green);}
+.progress-cell .lbl{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:0.6px;margin-top:2px;display:block;}
+.reset-bar{text-align:right;margin:-8px 0 14px;}
+.reset-btn{background:none;border:1px solid var(--border);color:var(--text2);font-family:'IBM Plex Mono',monospace;font-size:10px;padding:5px 10px;border-radius:6px;cursor:pointer;min-height:36px;touch-action:manipulation;}
+.reset-btn:active{background:var(--card-alt);}
+
+#prog-nav{position:sticky;top:0;z-index:100;background:var(--bg);padding:10px 0 0;border-bottom:1px solid var(--border);margin:0 -16px 14px;padding-left:16px;padding-right:16px;}
+.nav-week{display:flex;align-items:center;gap:8px;padding-bottom:8px;}
+.nav-btn{background:var(--card-alt);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:22px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;flex-shrink:0;line-height:1;padding:0;}
+.nav-btn:active{background:var(--border);}
+.nav-btn:disabled{opacity:0.3;cursor:default;}
+.nav-week-info{text-align:center;flex:1;min-width:0;}
+.nav-week-name{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.5px;line-height:1.1;}
+.nav-week-sub{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text2);margin-top:2px;}
+.nav-week-badge{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.4px;padding:2px 7px;border-radius:4px;margin-top:3px;}
+#day-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:10px;scrollbar-width:none;}
+#day-tabs::-webkit-scrollbar{display:none;}
+.day-tab{flex-shrink:0;font-family:'IBM Plex Mono',monospace;font-size:11px;padding:6px 10px;border-radius:6px;background:var(--card-alt);border:1px solid var(--border);color:var(--text2);cursor:pointer;touch-action:manipulation;white-space:nowrap;min-height:32px;display:flex;align-items:center;}
+.day-tab.active{background:rgba(74,255,158,0.18);border-color:var(--d1);color:var(--d1);}
+.day-tab.done{border-color:var(--green);}
+.day-tab:active{opacity:0.7;}
+
+.week-body{display:none;padding:0;}
+.week-body.active{display:block;}
+.day-card{border-left:3px solid var(--rest);background:var(--card-alt);border-radius:6px;padding:11px 13px;margin-top:0;display:none;}
+.day-card.active{display:block;}
+.day-card.d1{border-left-color:var(--d1);}
+.day-card.d2{border-left-color:var(--d2);}
+.day-card.d3{border-left-color:var(--d3);}
+.day-card.d4{border-left-color:var(--d4);}
+.day-card.rest{border-left-color:var(--rest);border-left-style:dashed;}
+.day-head{display:flex;justify-content:space-between;align-items:baseline;}
+.day-name{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:0.3px;}
+.day-check{display:flex;align-items:center;gap:5px;min-height:32px;}
+.day-check input{width:18px;height:18px;accent-color:var(--green);cursor:pointer;}
+.day-check label{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:0.4px;cursor:pointer;}
+.day-meta{display:flex;justify-content:space-between;align-items:center;margin-top:2px;margin-bottom:8px;flex-wrap:wrap;gap:6px;}
+.tag{font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.4px;padding:2px 7px;border-radius:4px;}
+.tag.d1{background:rgba(74,255,158,0.15);color:var(--d1);}
+.tag.d2{background:rgba(255,123,74,0.15);color:var(--d2);}
+.tag.d3{background:rgba(176,106,255,0.15);color:var(--d3);}
+.tag.d4{background:rgba(255,179,71,0.15);color:var(--d4);}
+.tag.rest{background:transparent;border:1px dashed var(--text2);color:var(--text2);}
+.day-date{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text2);}
+.phase-note{font-size:12px;color:var(--text2);font-style:italic;margin-bottom:10px;padding:8px 10px;background:rgba(255,255,255,0.03);border-radius:6px;border-left:2px solid var(--phase-color,var(--border));}
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:8px;}
+table.ex-table{width:100%;min-width:280px;border-collapse:collapse;font-size:12.5px;}
+table.ex-table th{font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.4px;color:var(--text2);text-align:left;padding:4px 6px;border-bottom:1px solid var(--border);white-space:nowrap;}
+table.ex-table td{padding:6px 6px;border-bottom:1px solid rgba(255,255,255,0.05);vertical-align:top;}
+table.ex-table td:first-child{color:var(--text);}
+table.ex-table td:nth-child(2){font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--text2);white-space:nowrap;}
+table.ex-table td:last-child{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--text2);white-space:normal;}
+table.ex-table tr:last-child td{border-bottom:none;}
+.table-label{font-family:'IBM Plex Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text2);margin:8px 0 2px;}
+.table-label:first-of-type{margin-top:2px;}
+.rest-msg{font-size:13.5px;color:var(--text2);padding:6px 0;}
+.ex-type{font-family:'IBM Plex Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.3px;padding:1px 5px;border-radius:3px;margin-right:6px;white-space:nowrap;display:inline-block;vertical-align:middle;}
+.ex-type-fuerza{background:rgba(255,255,255,0.08);color:var(--text);}
+.ex-type-accesorio{background:rgba(255,255,255,0.05);color:var(--text2);}
+.ex-type-metcon{background:rgba(255,123,74,0.15);color:#ff7b4a;}
+.ex-type-cardio{background:rgba(74,158,255,0.15);color:#4a9eff;}
+.opt-badge{font-family:'IBM Plex Mono',monospace;font-size:9px;color:#ffb347;border:1px dashed #ffb347;padding:1px 5px;border-radius:3px;margin-left:6px;white-space:nowrap;}
+.selector{display:flex;gap:8px;margin-bottom:10px;}
+.selector button{flex:1;font-family:'IBM Plex Mono',monospace;font-size:11.5px;text-transform:uppercase;letter-spacing:0.3px;padding:8px 6px;border-radius:6px;background:var(--card);border:1px solid var(--border);color:var(--text2);cursor:pointer;touch-action:manipulation;min-height:40px;}
+.selector button.active{background:rgba(255,179,71,0.18);border-color:var(--d4);color:var(--d4);}
+.opt-block{display:none;}
+.opt-block.active{display:block;}
+.sub-label{font-family:'IBM Plex Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text2);margin:12px 0 2px;padding-top:8px;border-top:1px dashed var(--border);}
+footer{margin-top:18px;padding-top:14px;border-top:1px solid var(--border);font-size:12px;color:var(--text2);}
+</style>
+</head>
+<body>
+
+<h1>Programación Mensual Strong</h1>
+<p class="subtitle">Isaac · Fase 1 (bloque 1/2) · 4 días/semana · 4 semanas · 21/09 – 18/10/2026</p>
+
+<div class="principios collapsed" onclick="this.classList.toggle('collapsed')">
+  <h2>Cómo está montado <span class="chevron">▾</span></h2>
+  <ul>
+    <li>Es la <strong>Fase 1</strong>, un bloque de 4 semanas centrado en acumular volumen y tiempo bajo tensión con reps moderadas-altas. Tras este bloque cambian los ejercicios.</li>
+    <li>Días: Lunes Sentadilla trasera + peso muerto rumano · Martes Banca · Jueves Peso muerto · Viernes Opción Bodybuilding u Halterofilia + EMOM. Miércoles, sábado y domingo libres.</li>
+    <li>El cardio y los metcon son <strong>opcionales</strong>: se recomienda hacer al menos las sesiones de máquina (remo y fan bike) para crear capacidad de trabajo. El resto de accesorios no son un añadido: impulsan el progreso de los levantamientos principales.</li>
+    <li>Progresión: Fase 1 base → Fase 2 (+2,5% en filas con %) → Fase 3 (+5% y +1 serie en accesorios con RPE) → Fase 4 (+7,5%, mismas series que la semana 3). Sin descarga por defecto.</li>
+    <li>Sin 1RM ni ritmo de 5k dados: se muestran los % y RPE de la plantilla y la carga queda "kg por definir".</li>
+  </ul>
+</div>
+
+<div class="progress-bar">
+  <div class="progress-cell"><span class="val" id="prog-total">0/16</span><span class="lbl">sesiones</span></div>
+  <div class="progress-cell"><span class="val" id="prog-week">0/4</span><span class="lbl">esta semana</span></div>
+  <div class="progress-cell"><span class="val" id="prog-pct">0%</span><span class="lbl">completado</span></div>
+</div>
+<div class="reset-bar"><button class="reset-btn" onclick="resetProgress()">↺ Reiniciar progreso</button></div>
+
+<div id="prog-nav">
+  <div class="nav-week">
+    <button class="nav-btn" id="nav-prev" onclick="navigateWeek(-1)">&#8249;</button>
+    <div class="nav-week-info">
+      <div class="nav-week-name" id="nav-week-name"></div>
+      <div class="nav-week-sub" id="nav-week-dates"></div>
+      <div><span class="nav-week-badge" id="nav-week-badge"></span></div>
+    </div>
+    <button class="nav-btn" id="nav-next" onclick="navigateWeek(1)">&#8250;</button>
+  </div>
+  <div id="day-tabs"></div>
+</div>
+
+<div id="weeks"></div>
+
+<footer>Programación Strong · Fase 1, bloque 1 · 4 semanas · generado para Isaac</footer>
+
+<script>
+// ===== FASES =====
+var phases = [
+  {label:'Fase 1 · Base', color:'var(--f1)', badgeBg:'rgba(74,158,255,0.15)', badgeColor:'#4a9eff', pctAdd:0, extraSerie:false,
+    note:'Ejecuta los % y el RPE tal cual la plantilla. Es tu línea base del mes.'},
+  {label:'Fase 2 · +2,5%', color:'var(--f2)', badgeBg:'rgba(212,168,32,0.15)', badgeColor:'#d4a820', pctAdd:2.5, extraSerie:false,
+    note:'+2,5% sobre la semana 1 en las filas con porcentaje. En los ejercicios con RPE, mismas series: intenta +1 rep o +2,5-5 kg. Repite metcon y cardio y registra el resultado.'},
+  {label:'Fase 3 · +5%', color:'var(--f3)', badgeBg:'rgba(255,123,74,0.15)', badgeColor:'#ff7b4a', pctAdd:5, extraSerie:true,
+    note:'+5% sobre la semana 1 en las filas con porcentaje. Los ejercicios con RPE suman +1 serie (no aplica a core, carries ni cardio). Repite metcon y cardio y registra el resultado.'},
+  {label:'Fase 4 · +7,5%', color:'var(--f4)', badgeBg:'rgba(255,90,90,0.15)', badgeColor:'#ff5a5a', pctAdd:7.5, extraSerie:true,
+    note:'+7,5% sobre la semana 1 en las filas con porcentaje. Mismas series que la semana 3 en los ejercicios con RPE. Sin descarga por defecto: si Isaac la pide, esta semana pasa a -40% de series (mín. 2), % de la semana 1 y RPE 6-7.'}
+];
+
+var weekStarts = ['2026-09-21','2026-09-28','2026-10-05','2026-10-12'];
+
+// tipos: fuerza | accesorio | metcon | cardio
+var TYPE_LABEL = {fuerza:'Fuerza', accesorio:'Accesorio', metcon:'Metcon', cardio:'Cardio'};
+
+var rowingSub = {
+  label:'Secuencia del remo (Metcon opcional)',
+  cols:['Tramo','Distancia','Ritmo','Descanso posterior'],
+  rows:[
+    ['1','1500 m','Ritmo de 5k','1:00'],
+    ['2','250 m','Sprint','0:30'],
+    ['3','250 m','Sprint','2:00'],
+    ['4','1000 m','Ritmo de 5k','0:45'],
+    ['5','250 m','Sprint','0:45'],
+    ['6','250 m','Sprint','–']
+  ]
+};
+var emomSub = {
+  label:'EMOM 28 · 7 rondas de 4 minutos — Opcional',
+  cols:['Minuto','Ejercicio'],
+  rows:[
+    ['0:00','12/9 cal remo'],
+    ['1:00','10-15 toes to bar'],
+    ['2:00','12/9 cal fan bike'],
+    ['3:00','10-15 wall ball (20/14 lb, aprox. 9/6 kg)']
+  ]
+};
+
+// ===== DÍAS =====
+var days = [
+  {code:'d1', wd:0, name:'Día 1', sub:'Sentadilla trasera y peso muerto rumano', tipo:'d1', exercises:[
+    {type:'fuerza', name:'Sentadilla trasera', reps:'5', series:10, kind:'pct', basePct:60, rest:'1 min', notes:''},
+    {type:'fuerza', name:'Peso muerto rumano', reps:'8', series:3, kind:'rpe', rpe:8, rest:'2 min', notes:''},
+    {type:'accesorio', name:'Sentadilla búlgara', reps:'12/12', series:2, kind:'rpe', rpe:'7-8', rest:'2 min', notes:''},
+    {type:'accesorio', name:'Biserie: plancha frontal 1:00 + remo en anillas 10-15', series:3, kind:'quality', rest:'1 min', notes:''},
+    {type:'metcon', name:'Remo por intervalos (ver secuencia abajo)', series:1, kind:'metcon-simple', intensityText:'Ritmo de 5k / sprint', rest:'Según secuencia', notes:''}
+  ], subtable: rowingSub},
+  {code:'d2', wd:1, name:'Día 2', sub:'Press de banca', tipo:'d2', exercises:[
+    {type:'fuerza', name:'Press de banca', reps:'5', series:10, kind:'pct', basePct:60, rest:'1 min', notes:''},
+    {type:'accesorio', name:'Press de banca inclinado', reps:'12', series:3, kind:'rpe', rpe:8, rest:'1:30', notes:''},
+    {type:'accesorio', name:'Press estricto sentado con mancuernas', reps:'10-12', series:3, kind:'rpe', rpe:8, rest:'1:30', notes:''},
+    {type:'accesorio', name:'Aperturas de deltoides con mancuernas (Delt Flys)', reps:'15-20', series:3, kind:'fallo', rest:'1 min', notes:''},
+    {type:'accesorio', name:'Biserie: curl de bíceps con 2 mancuernas 10-12 + skull crushers rodantes con mancuernas 15-20', series:3, kind:'quality', rest:'1 min', notes:''},
+    {type:'metcon', name:'Por tiempo, cap 11:00: 40 burpees, 200 m farmer\'s carry, 20 burpees, 100 m farmer\'s carry', series:1, kind:'metcon-simple', rest:'–', notes:'El farmer\'s carry es con 2×35/23 lb (aprox. 2×16/10,5 kg), con kettlebell o mancuerna.'}
+  ]},
+  {code:'rest-mie', wd:2, name:'Descanso', sub:'', tipo:'rest', exercises:null},
+  {code:'d3', wd:3, name:'Día 3', sub:'Peso muerto', tipo:'d3', exercises:[
+    {type:'fuerza', name:'Peso muerto', reps:'5', series:10, kind:'pct', basePct:60, rest:'1 min', notes:''},
+    {type:'accesorio', name:'Glute ham raise', reps:'10-20', series:3, kind:'rpe', rpe:'7-8', rest:'2 min', notes:''},
+    {type:'accesorio', name:'Bear hug con saco D-Ball', kind:'carry', text:'Acumular 5:00', rest:'–', notes:''},
+    {type:'accesorio', name:'Biserie: Pallof press 15/15 + giro ruso pesado 10-15', series:3, kind:'quality', rest:'Según necesidad', notes:''},
+    {type:'cardio', name:'Fan bike', reps:'4:00', series:4, kind:'cardio', rest:'1 min', notes:''}
+  ]},
+  {code:'d4', wd:4, name:'Día 4', sub:'Opción Bodybuilding u Halterofilia + EMOM', tipo:'d4', isDay4:true,
+    optionBB:[
+      {type:'fuerza', name:'Press de banca inclinado', reps:'8', series:3, kind:'rpe', rpe:9, rest:'2-3 min', notes:''},
+      {type:'accesorio', name:'Remo inclinado (bent over row)', reps:'8', series:3, kind:'rpe', rpe:9, rest:'2 min', notes:''},
+      {type:'accesorio', name:'Press estricto sentado con mancuernas', reps:'12-15', series:3, kind:'rpe', rpe:9, rest:'2 min', notes:''},
+      {type:'accesorio', name:'Biserie: curl con barra 10-12 + máx. flexiones', series:3, kind:'quality-rpe', rpe:9, rest:'1 min', notes:''},
+      {type:'accesorio', name:'Biserie: curl martillo con mancuernas 8-10 + máx. skull crushers con mancuerna', series:3, kind:'quality-rpe', rpe:9, rest:'1 min', notes:''}
+    ],
+    optionOly:[
+      {type:'fuerza', name:'Complex de preparación: 1 tirón de arrancada + 1 arrancada con dip + 1 arrancada de colgado + 1 arrancada', series:4, kind:'pct', basePct:50, rest:'1 min', notes:'', liftColor:'var(--snatch)'},
+      {type:'fuerza', name:'Arrancada', reps:'3', series:3, kind:'pct', basePct:70, rest:'2 min', notes:'', liftColor:'var(--snatch)'},
+      {type:'fuerza', name:'Complex de dos tiempos: 3 cargadas en sentadilla + 1 envión con tijera', series:3, kind:'pct', basePct:65, rest:'2 min', notes:'', liftColor:'var(--cj)'},
+      {type:'accesorio', name:'Remo con mancuerna a un brazo', reps:'12/12', series:3, kind:'rpe', rpe:9, rest:'1 min', notes:''},
+      {type:'accesorio', name:'Biserie: curl con barra 10-12 + máx. flexiones', series:3, kind:'quality-rpe', rpe:9, rest:'1 min', notes:''}
+    ],
+    subtable: emomSub
+  },
+  {code:'rest-sab', wd:5, name:'Descanso', sub:'', tipo:'rest', exercises:null},
+  {code:'rest-dom', wd:6, name:'Descanso', sub:'', tipo:'rest', exercises:null}
+];
+
+function fmtPct(n){ return String(n).replace(/\.0$/,'').replace('.', ',')+' %'; }
+function pctForWeek(basePct, week){ return Math.round((basePct + phases[week-1].pctAdd)*10)/10; }
+function scaleSeries(series, week){
+  if(phases[week-1].extraSerie) return series+1;
+  return series;
+}
+function cellSeriesReps(ex, week){
+  if(ex.kind==='carry') return ex.text;
+  if(ex.kind==='metcon-simple') return ex.series+' vez';
+  if(ex.kind==='pct') return ex.reps ? (ex.series+' × '+ex.reps) : (ex.series+' series');
+  if(ex.kind==='quality' || ex.kind==='quality-rpe') return scaleSeriesForQuality(ex,week)+' series';
+  if(ex.kind==='cardio') return ex.series+' × '+ex.reps;
+  return scaleSeries(ex.series, week)+' × '+ex.reps;
+}
+function scaleSeriesForQuality(ex, week){ return ex.series; } // core/biseries de calidad: sin +1 serie
+function cellIntensity(ex, week){
+  if(ex.kind==='pct') return fmtPct(pctForWeek(ex.basePct, week))+' (kg por definir)';
+  if(ex.kind==='rpe') return 'RPE '+ex.rpe;
+  if(ex.kind==='fallo') return 'Fallo';
+  if(ex.kind==='quality') return '–';
+  if(ex.kind==='quality-rpe') return 'RPE '+ex.rpe;
+  if(ex.kind==='carry') return '–';
+  if(ex.kind==='cardio') return '–';
+  if(ex.kind==='metcon-simple') return ex.intensityText || '–';
+  return '–';
+}
+function fmtDate(iso, offsetDays){
+  var parts = iso.split('-');
+  var d = new Date(parseInt(parts[0],10), parseInt(parts[1],10)-1, parseInt(parts[2],10));
+  d.setDate(d.getDate()+offsetDays);
+  var dd = String(d.getDate()).padStart(2,'0');
+  var mm = String(d.getMonth()+1).padStart(2,'0');
+  return dd+'/'+mm;
+}
+function renderExTables(exercises, week, idSuffix){
+  var html = '';
+  html += '<div class="table-scroll"><table class="ex-table"><thead><tr><th>Ejercicio</th><th>Series×Reps · Intensidad</th><th>Descanso · Notas</th></tr></thead><tbody>';
+  exercises.forEach(function(ex, idx){
+    var typeTag = '<span class="ex-type ex-type-'+ex.type+'"'+(ex.liftColor?(' style="background:transparent;border:1px solid '+ex.liftColor+';color:'+ex.liftColor+'"'):'')+'>'+TYPE_LABEL[ex.type]+'</span>';
+    var optBadge = (ex.type==='metcon'||ex.type==='cardio') ? '<span class="opt-badge">Opcional</span>' : '';
+    var noteTxt = ex.notes ? (' · '+ex.notes) : '';
+    html += '<tr><td>'+typeTag+(idx+1)+'. '+ex.name+optBadge+'</td><td>'+cellSeriesReps(ex, week)+' · '+cellIntensity(ex, week)+'</td><td>'+ex.rest+noteTxt+'</td></tr>';
+  });
+  html += '</tbody></table></div>';
+  return html;
+}
+function renderSubtable(sub){
+  var html = '<div class="sub-label">'+sub.label+'</div>';
+  html += '<div class="table-scroll"><table class="ex-table"><thead><tr>';
+  sub.cols.forEach(function(c){ html += '<th>'+c+'</th>'; });
+  html += '</tr></thead><tbody>';
+  sub.rows.forEach(function(r){
+    html += '<tr>'; r.forEach(function(c){ html += '<td>'+c+'</td>'; }); html += '</tr>';
+  });
+  html += '</tbody></table></div>';
+  return html;
+}
+
+// ===== RENDER =====
+var weeksEl = document.getElementById('weeks');
+for(var wi=0; wi<4; wi++){
+  (function(wi){
+    var week = wi+1;
+    var phase = phases[wi];
+
+    var weekDiv = document.createElement('div');
+    weekDiv.className = 'week';
+    weekDiv.dataset.week = week;
+
+    var body = document.createElement('div');
+    body.className = 'week-body';
+    body.dataset.badge = phase.label;
+    body.dataset.badgeBg = phase.badgeBg;
+    body.dataset.badgeColor = phase.badgeColor;
+    body.dataset.dates = fmtDate(weekStarts[wi],0)+' – '+fmtDate(weekStarts[wi],6);
+
+    days.forEach(function(day){
+      var dateStr = fmtDate(weekStarts[wi], day.wd);
+      var dayKey = 'wk'+week+'-'+day.code;
+      var card = document.createElement('div');
+      card.className = 'day-card '+day.tipo;
+      card.dataset.key = dayKey;
+
+      var html = '';
+      html += '<div class="day-head"><span class="day-name">'+day.name+'</span>';
+      if(day.exercises || day.isDay4){
+        html += '<span class="day-check"><input type="checkbox" id="chk-'+dayKey+'" data-key="'+dayKey+'" data-week="'+week+'" onclick="event.stopPropagation();toggleDone(this)"><label for="chk-'+dayKey+'">Hecho</label></span>';
+      }
+      html += '</div>';
+      html += '<div class="day-meta"><span class="tag '+day.tipo+'">'+(day.sub||'Descanso')+'</span><span class="day-date">'+dateStr+'</span></div>';
+      html += '<div class="phase-note" style="--phase-color:'+phase.color+'">'+phase.note+'</div>';
+
+      if(!day.exercises && !day.isDay4){
+        html += '<div class="rest-msg">Sin sesión programada.</div>';
+      } else if(day.isDay4){
+        var optKey = 'opt-'+dayKey;
+        html += '<div class="selector" data-daykey="'+dayKey+'">';
+        html += '<button type="button" class="opt-btn" data-opt="bb" onclick="chooseOption(this)">Bodybuilding</button>';
+        html += '<button type="button" class="opt-btn" data-opt="oly" onclick="chooseOption(this)">Halterofilia</button>';
+        html += '</div>';
+        html += '<div class="opt-block" data-opt-block="bb">'+renderExTables(day.optionBB, week)+'</div>';
+        html += '<div class="opt-block" data-opt-block="oly">'+renderExTables(day.optionOly, week)+'</div>';
+        html += renderSubtable(day.subtable);
+      } else {
+        html += renderExTables(day.exercises, week);
+        if(day.subtable) html += renderSubtable(day.subtable);
+      }
+
+      card.innerHTML = html;
+      body.appendChild(card);
+    });
+
+    weekDiv.appendChild(body);
+    weeksEl.appendChild(weekDiv);
+  })(wi);
+}
+
+var TOTAL_SESSIONS = 4*4; // 4 semanas x 4 días de entrenamiento
+
+// ===== SELECTOR DÍA 4 (opción global compartida entre semanas) =====
+function getDay4Option(){
+  try{ return localStorage.getItem('isaac_strong_day4_opt') || 'bb'; }catch(e){ return window.__day4Opt || 'bb'; }
+}
+function setDay4Option(opt){
+  try{ localStorage.setItem('isaac_strong_day4_opt', opt); }catch(e){ window.__day4Opt = opt; }
+}
+function applyDay4Option(){
+  var opt = getDay4Option();
+  document.querySelectorAll('.selector').forEach(function(sel){
+    sel.querySelectorAll('.opt-btn').forEach(function(btn){
+      btn.classList.toggle('active', btn.dataset.opt===opt);
+    });
+  });
+  document.querySelectorAll('.opt-block').forEach(function(blk){
+    blk.classList.toggle('active', blk.dataset.optBlock===opt);
+  });
+}
+function chooseOption(btn){
+  setDay4Option(btn.dataset.opt);
+  applyDay4Option();
+}
+
+// ===== PROGRESO / PERSISTENCIA =====
+function storageGet(){
+  try{ return JSON.parse(localStorage.getItem('isaac_strong_progress')||'{}'); }catch(e){ return window.__progressMemory||{}; }
+}
+function storageSet(obj){
+  try{ localStorage.setItem('isaac_strong_progress', JSON.stringify(obj)); }catch(e){ window.__progressMemory=obj; }
+}
+function toggleDone(input){
+  var st = storageGet();
+  st[input.dataset.key] = input.checked;
+  storageSet(st);
+  updateProgress();
+}
+function resetProgress(){
+  if(!confirm('¿Reiniciar todo el progreso marcado?')) return;
+  storageSet({});
+  updateProgress();
+}
+function updateProgress(){
+  var st = storageGet();
+  var all = document.querySelectorAll('input[type=checkbox][data-key]');
+  var totalDone = 0, perWeek = {};
+  all.forEach(function(chk){
+    var done = !!st[chk.dataset.key];
+    chk.checked = done;
+    if(done) totalDone++;
+    var w = chk.dataset.week;
+    perWeek[w] = (perWeek[w]||0) + (done?1:0);
+  });
+  document.getElementById('prog-total').textContent = totalDone+'/'+TOTAL_SESSIONS;
+  document.getElementById('prog-pct').textContent = Math.round(totalDone/TOTAL_SESSIONS*100)+'%';
+  var curWeek = perWeek[state.week+1] || 0;
+  document.getElementById('prog-week').textContent = curWeek+'/4';
+  buildDayTabs();
+}
+
+// ===== NAVEGACIÓN =====
+var state = {week:0, day:0};
+function getWeeks(){ return document.querySelectorAll('.week'); }
+function saveNavState(){ try{ localStorage.setItem('strong_box_nav', JSON.stringify(state)); }catch(e){} }
+function loadNavState(){ try{ var s=localStorage.getItem('strong_box_nav'); if(s){ var p=JSON.parse(s); if(typeof p.week==='number') return p; } }catch(e){} return null; }
+
+function updateNav(){
+  var weeks = getWeeks();
+  var week = weeks[state.week];
+  var body = week.querySelector('.week-body');
+  document.getElementById('nav-week-name').textContent = 'Semana '+(state.week+1);
+  document.getElementById('nav-week-dates').textContent = body.dataset.dates;
+  var badge = document.getElementById('nav-week-badge');
+  badge.textContent = body.dataset.badge;
+  badge.style.background = body.dataset.badgeBg;
+  badge.style.color = body.dataset.badgeColor;
+  document.getElementById('nav-prev').disabled = state.week===0;
+  document.getElementById('nav-next').disabled = state.week===weeks.length-1;
+}
+function buildDayTabs(){
+  var weeks = getWeeks();
+  var cards = weeks[state.week].querySelectorAll('.day-card');
+  var st = storageGet();
+  var tabsEl = document.getElementById('day-tabs');
+  tabsEl.innerHTML = '';
+  cards.forEach(function(d,i){
+    var name = d.querySelector('.day-name');
+    var tab = document.createElement('button');
+    tab.className = 'day-tab'+(i===state.day?' active':'')+(st[d.dataset.key]?' done':'');
+    tab.textContent = name ? name.textContent : ('Día '+(i+1));
+    (function(idx){ tab.addEventListener('click', function(){ showDay(idx); }); })(i);
+    tabsEl.appendChild(tab);
+  });
+  var at = tabsEl.querySelector('.day-tab.active');
+  if(at) setTimeout(function(){ at.scrollIntoView({behavior:'instant', block:'nearest', inline:'center'}); }, 50);
+}
+function showDay(dayIdx){
+  var weeks = getWeeks();
+  var cards = weeks[state.week].querySelectorAll('.day-card');
+  cards.forEach(function(d){ d.classList.remove('active'); });
+  if(cards[dayIdx]) cards[dayIdx].classList.add('active');
+  state.day = dayIdx;
+  document.querySelectorAll('.day-tab').forEach(function(t,i){ t.classList.toggle('active', i===dayIdx); });
+  var at = document.querySelectorAll('.day-tab')[dayIdx];
+  if(at) at.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
+  window.scrollTo(0,0);
+  saveNavState();
+}
+function showWeek(weekIdx){
+  var weeks = getWeeks();
+  weeks.forEach(function(w){ w.querySelector('.week-body').classList.remove('active'); });
+  weeks[weekIdx].querySelector('.week-body').classList.add('active');
+  state.week = weekIdx; state.day = 0;
+  updateNav(); buildDayTabs(); showDay(0);
+  window.scrollTo(0,0); saveNavState();
+  updateProgressWeekOnly();
+}
+function updateProgressWeekOnly(){
+  var st = storageGet();
+  var cards = getWeeks()[state.week].querySelectorAll('.day-card');
+  var done = 0;
+  cards.forEach(function(d){ if(st[d.dataset.key]) done++; });
+  document.getElementById('prog-week').textContent = done+'/4';
+}
+function navigateWeek(delta){
+  var weeks = getWeeks();
+  var ni = Math.max(0, Math.min(weeks.length-1, state.week+delta));
+  if(ni!==state.week) showWeek(ni);
+}
+
+// ===== INIT =====
+(function(){
+  var saved = loadNavState();
+  var pos = saved || {week:0, day:0};
+  var weeks = getWeeks();
+  pos.week = Math.max(0, Math.min(weeks.length-1, pos.week));
+  var cards = weeks[pos.week].querySelectorAll('.day-card');
+  pos.day = Math.max(0, Math.min(cards.length-1, pos.day));
+  state = pos;
+  weeks[state.week].querySelector('.week-body').classList.add('active');
+  updateNav(); buildDayTabs();
+  if(cards[state.day]) cards[state.day].classList.add('active');
+  applyDay4Option();
+  updateProgress();
+})();
+</script>
+</body>
+</html>

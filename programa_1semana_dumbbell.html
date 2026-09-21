@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Programa Funcional 1 Semana · Mancuernas (DB)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f; --card: #14141c; --card-alt: #1a1a24; --border: #2a2a35;
+    --text: #f0f0f5; --text2: #9999a8;
+    --d1: #4a9eff; --d2: #4aff9e; --d3: #b06aff; --d4: #ffb347; --d5: #ff5ac8;
+    --warm: #4ad4c8; --cond: #ff7b4a; --acc: #4a9eff; --extra: #d4a820; --cool: #9096a6;
+    --green: #4aff9e;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0; padding: 16px 16px 32px; background: var(--bg); color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif; line-height: 1.5; max-width: 680px;
+    margin-left: auto; margin-right: auto; overflow-x: hidden;
+  }
+  h1 { font-family: 'Bebas Neue', sans-serif; font-size: 25px; letter-spacing: 0.5px; margin: 4px 0 2px; }
+  .subtitle { color: var(--text2); font-size: 13px; margin: 0 0 16px; }
+  .mono { font-family: 'IBM Plex Mono', monospace; }
+
+  .principios { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }
+  .principios h2 { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 0.5px; margin: 0; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; min-height: 48px; touch-action: manipulation; }
+  .principios h2 .chevron { font-size: 12px; color: var(--text2); transition: transform 0.2s; transform: rotate(-90deg); }
+  .principios:not(.collapsed) h2 { margin: 0 0 8px; }
+  .principios:not(.collapsed) h2 .chevron { transform: rotate(0deg); }
+  .principios.collapsed ul { display: none; }
+  .principios ul { margin: 0; padding-left: 18px; font-size: 13px; color: var(--text2); }
+  .principios li { margin-bottom: 5px; }
+
+  .progress-bar { display: flex; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 14px; }
+  .progress-cell { flex: 1; background: var(--card); padding: 10px 6px; text-align: center; }
+  .progress-cell .val { font-family: 'Bebas Neue', sans-serif; font-size: 20px; line-height: 1; display: block; color: var(--green); }
+  .progress-cell .lbl { font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.6px; margin-top: 2px; display: block; }
+  .reset-bar { text-align: right; margin: -8px 0 14px; }
+  .reset-btn { background: none; border: 1px solid var(--border); color: var(--text2); font-family: 'IBM Plex Mono', monospace; font-size: 10px; padding: 5px 10px; border-radius: 6px; cursor: pointer; min-height: 36px; touch-action: manipulation; }
+  .reset-btn:active { background: var(--card-alt); }
+
+  .tabbar {
+    display: flex; gap: 6px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    padding: 10px 0; position: sticky; top: 0; background: var(--bg);
+    border-bottom: 1px solid var(--border); z-index: 20; scrollbar-width: none; margin-bottom: 14px;
+  }
+  .tabbar::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    flex-shrink: 0; font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600;
+    padding: 9px 15px; border-radius: 20px; border: 1px solid var(--border); background: var(--card);
+    color: var(--text2); display: flex; align-items: center; gap: 6px; touch-action: manipulation; min-height: 36px;
+  }
+  .tab-btn .dot { width: 7px; height: 7px; border-radius: 50%; }
+  .tab-btn.active { background: var(--tabcolor, var(--text)); color: var(--bg); border-color: var(--tabcolor, var(--text)); }
+  .tab-btn.active .dot { background: var(--bg) !important; }
+  .tab-btn.done { border-color: var(--green); }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .day-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+  .day-head h2 { font-size: 22px; }
+  .day-check { display: flex; align-items: center; gap: 5px; min-height: 32px; }
+  .day-check input { width: 18px; height: 18px; accent-color: var(--green); cursor: pointer; }
+  .day-check label { font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.4px; cursor: pointer; }
+  .day-sub { color: var(--text2); font-size: 12.5px; margin: 0 0 14px; }
+
+  .block-title { font-size: 13px; text-transform: uppercase; letter-spacing: 0.7px; color: var(--text2); margin: 18px 0 8px; display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .block-title:first-of-type { margin-top: 0; }
+  .block-title .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .block-title .meta { font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--text); }
+
+  .pill { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; background: var(--card2, var(--card-alt)); border: 1px solid var(--border); border-radius: 20px; padding: 3px 9px; color: var(--text2); display: inline-block; margin: 2px 6px 8px 0; }
+
+  .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 6px; }
+  table.ex-table { width: 100%; min-width: 300px; border-collapse: collapse; font-size: 12.5px; }
+  table.ex-table th { font-family: 'IBM Plex Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text2); text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  table.ex-table td { padding: 7px 6px; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: top; }
+  table.ex-table td:first-child { color: var(--text); }
+  table.ex-table td:nth-child(2) { font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: var(--text2); white-space: nowrap; }
+  table.ex-table td:last-child { font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: var(--text2); white-space: normal; }
+  table.ex-table tr:last-child td { border-bottom: none; }
+
+  .note { font-size: 12px; color: var(--text2); line-height: 1.5; margin: 6px 0 14px; }
+  .note.tight { margin-top: 4px; margin-bottom: 10px; }
+  .exwrap { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 4px; }
+
+  footer { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text2); }
+</style>
+</head>
+
+<body>
+
+<h1>Programa Funcional 1 Semana</h1>
+<p class="subtitle">Isaac · Mancuernas (DB) · 5 días · Warm-up + Conditioning + Accessory + Extra + Cool-down</p>
+
+<div class="principios collapsed" onclick="this.classList.toggle('collapsed')">
+  <h2>Cómo está montado <span class="chevron">▾</span></h2>
+  <ul>
+    <li>Cada día tiene 5 bloques en orden: <strong>Warm-up</strong> (activación), <strong>Conditioning</strong> (el "WOD" del día, con su pacing/RPE y a veces cap de tiempo), <strong>Accessory</strong> (trabajo de fuerza/estabilidad, 2-4 series), <strong>Extra</strong> (acumular reps de un solo ejercicio) y <strong>Cool-down</strong> (estiramientos).</li>
+    <li>En Accessory, el rango de series (ej. "3-4 sets") es orientativo: elige según tu nivel y cómo te encuentres ese día. Son series de trabajo, no incluyen calentamiento — haz 2-3 series de calentamiento antes.</li>
+    <li>Los rangos de reps (ej. "8-12") sustituyen a un peso fijo: elige una carga que te deje cerca del fallo, entre 0-3 reps en reserva (RIR), salvo que se indique otra cosa.</li>
+    <li>Una <strong>superserie</strong> son dos ejercicios seguidos con descanso mínimo entre ellos; el descanso "entre series" se toma después de completar ambos.</li>
+    <li>Es una sola semana: repite el ciclo completo (Día 1 a Día 5) mientras te sirva, subiendo carga cuando las reps de arriba del rango se completen con buena técnica.</li>
+  </ul>
+</div>
+
+<div class="progress-bar">
+  <div class="progress-cell"><span class="val" id="prog-total">0/5</span><span class="lbl">días</span></div>
+  <div class="progress-cell"><span class="val" id="prog-pct">0%</span><span class="lbl">completado</span></div>
+</div>
+<div class="reset-bar"><button class="reset-btn" onclick="resetProgress()">↺ Reiniciar progreso</button></div>
+
+<div class="tabbar" id="tabbar">
+  <button class="tab-btn active" id="tabbtn-d1" style="--tabcolor:var(--d1)" onclick="showTab('d1', this)"><span class="dot" style="background:var(--d1)"></span>DÍA 1</button>
+  <button class="tab-btn" id="tabbtn-d2" style="--tabcolor:var(--d2)" onclick="showTab('d2', this)"><span class="dot" style="background:var(--d2)"></span>DÍA 2</button>
+  <button class="tab-btn" id="tabbtn-d3" style="--tabcolor:var(--d3)" onclick="showTab('d3', this)"><span class="dot" style="background:var(--d3)"></span>DÍA 3</button>
+  <button class="tab-btn" id="tabbtn-d4" style="--tabcolor:var(--d4)" onclick="showTab('d4', this)"><span class="dot" style="background:var(--d4)"></span>DÍA 4</button>
+  <button class="tab-btn" id="tabbtn-d5" style="--tabcolor:var(--d5)" onclick="showTab('d5', this)"><span class="dot" style="background:var(--d5)"></span>DÍA 5</button>
+</div>
+
+<!-- ============ DÍA 1 ============ -->
+<div class="tab-panel active" id="tab-d1">
+  <div class="day-head"><h2>DÍA 1</h2>
+    <span class="day-check"><input type="checkbox" id="chk-d1" data-key="d1" onclick="toggleDone(this)"><label for="chk-d1">Hecho</label></span>
+  </div>
+  <div class="day-sub">Piernas + acondicionamiento con Goblet Squat / Burpee Over DB</div>
+
+  <div class="block-title"><span class="dot" style="background:var(--warm)"></span>Warm-up <span class="meta mono">3 series</span></div>
+  <div class="table-scroll"><table class="ex-table">
+    <thead><tr><th>Ejercicio</th><th>Reps / Tiempo</th><th>Notas</th></tr></thead>
+    <tbody>
+      <tr><td>Trabajo aeróbico</td><td>1 min</td><td>Cualquier actividad de bajo impacto (carrera suave, bici, comba) que eleve el pulso.</td></tr>
+      <tr><td>Glute bridge a peso corporal</td><td>12</td><td></td></tr>
+      <tr><td>Hip 90/90</td><td>8 (4/4)</td><td></td></tr>
+      <tr><td>Squat and reach</td><td>6 (3/3)</td><td></td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="block-title"><span class="dot" style="background:var(--cond)"></span>Conditioning Work <span class="meta mono">3-4 rondas</span></div>
+  <div class="pill">Pacing: sostenible-agresivo (RPE 7-8)</div>
+  <div class="pill">Time cap: 5 min/ronda</div>
+  <div class="table-scroll"><table class="ex-table">
+    <thead><tr><th>Ejercicio</th><th>Reps</th><th>Descanso</th></tr></thead>
+    <tbody>
+      <tr><td>Goblet squat</td><td>12-9-6</td><td rowspan="2" style="vertical-align:middle;">1 min entre rondas</td></tr>
+      <tr><td>Burpee over DB</td><td>8-6-4</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note tight">Empieza con 12 goblet squats, luego 8 burpees over DB. Después 9 goblet squats y 6 burpees. Termina con 6 goblet squats y 4 burpees — esa es una ronda. Descansa 1 min y repite. Completa 3-4 rondas según tu nivel: empieza con 3 y añade una 4ª si llegas fresco. Cada ronda tiene un cap de 5 min a ritmo sostenible-agresivo (RPE 7-8): exigente pero sin reventarte antes de acabar la ronda.</div>
+
+  <div class="block-title"><span class="dot" style="background:var(--acc)"></span>Accessory Work <span class="meta mono">3-4 series</span></div>
+  <div class="table-scroll"><table class="ex-table">
+    <thead><tr><th>Ejercicio</th><th>Reps</th><th>Descanso</th></tr></thead>
+    <tbody>
+      <tr><td>Rear foot elevated split squat (der.)</td><td>8-12</td><td>60 s</td></tr>
+      <tr><td>Rear foot elevated split squat (izq.)</td><td>8-12</td><td>90 s entre series</td></tr>
+    </tbody>
+  </table></div>
+  <div class="block-title" style="margin-top:12px;"><span class="dot" style="background:var(--acc)"></span>Accessory Work (2) <span class="meta mono">2-3 series</span></div>
+  <div class="table-scroll"><table class="ex-table">
+    <thead><tr><th>Ejercicio</th><th>Reps / Tiempo</th><th>Descanso</th></tr></thead>
+    <tbody>
+      <tr><td>Single leg wall sit (der.)</td><td>20 s</td><td>60 s</td></tr>
+      <tr><td>Single leg wall sit (izq.)</td><td>20 s</td><td>1 min entre series</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note tight">El rango de series es orientativo (elige según tu nivel), son series de trabajo — haz 2-3 de calentamiento antes. En los rangos de reps (8-12), busca una carga cercana al fallo (0-3 RIR).</div>
+
+  <div class="block-title"><span class="dot" style="background:var(--extra)"></span>Extra Work</div>
+  <div class="table-scroll"><table class="ex-table">
+    <thead><tr><th>Ejercicio</th><th>Reps</th><th>Notas</th></tr></thead>
+    <tbody>
+      <tr><td>Elevación de talones (calf raise)</td><td>50 (acumuladas)</td><td>Reparte reps y descanso como necesites, priorizando la técnica.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="block-title"><span class="dot" style="background:var(--cool)"></span>Cool-down <span class="meta mono">2 series</span></div>
+  <div class="table-scroll"><table class="ex-table">
+    <thead><tr><th>Ejercicio</th><th>Tiempo</th><th>Notas</th></tr></thead>
+    <tbody>
+      <tr><td>Couch stretch</td><td>1 min por lado</td><td></td></tr>
+      <tr><td>Pigeon stretch</td><td>1 min por lado</td><td></td></tr>
+    </tbody>
+  </table></div>
+</div>
+
+<!-- ============ DÍA 2 ============ -->
+<div class="tab-panel" id="tab-d2">
+  <div class="day-head"><h2>DÍA 2</h2>
+    <span class="day-check"><input type="checkbox" id="chk-d2" data-key="d2" onclick="toggleDone(this)"><label for="chk-d2">Hecho</label></span>
+  </div>
+  <div class="day-sub">Empuje/tirón + acondicionamiento EMOM-style de 1 minuto</div>
+
+  <div class="block-title"><span class="dot" style="background:var(--warm)"></span>Warm-up <span class="meta mono">3 series</span></div>
+  <div class="table-scroll"><table class="ex-table">
+    <thead><tr><th>Ejercicio</th><th>Reps / Tiempo</th><th>Notas</th></tr></thead>
+    <tbody>
+      <tr><td>Trabajo aeróbico</td><td>1 min</td><td></td></tr>
+      <tr><td>Push-up to downward dog</td><td>6</td><td></td></tr>
+      <tr><td>Remo inclinado con banda</td><td>8</td><td></td></tr>
+      <tr><td>Rotación torácica en cuadrupedia</td><td>10 (5/5)</td><td></td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="block-title"><span class="dot" style="background:var(--cond)"></span>Conditioning Work <span class="meta mono">4-5 rondas</span></div>
+  <div class="pill">Pacing: sostenible (RPE 6-7)</div>
+  <div class="table-scroll"><table class="ex-table">
+    <thead><tr><th>Ejercicio</th><th>Tiempo</th><th>Descanso</th></tr></thead>
+    <tbody>
+      <tr><td>Máx. press de suelo alterno con DB</td><td>1 min</td><td rowspan="3" style="vertical-align:middle;">1 min entre rondas (sin descanso entre ejercicios)</td></tr>
+      <tr><td>Máx. renegade row</td><td>1 min</td></tr>
+      <tr><td>Máx. distancia farmer's carry</td><td>1 min</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note tight">Cada ejercicio se hace durante 1 minuto seguido, sin descanso entre movimientos. Al terminar los tres, descansa 1 min antes de la siguiente ronda. El objetivo es mantener un ritmo constante en cada ronda sin quemarte.</div>
+
+  <div class="block-title"><span class="dot" style="background:var(--acc)"></span>Accessory Work <span class="meta mono">2-3 series</span></div>
+  <div class="table-scroll"><table class="ex-table">
+    <thead><tr><th>Ejercicio</th><th>Reps</th><th>Descanso</th></tr></thead>
+    <tbody>
+      <tr><td>Press de hombro a una mano, semi-arrodillado (der.)</td><td>8-12</td><td>30 s</td></tr>
+      <tr><td>Press de hombro a una mano, semi-arrodillado (izq.)</td><td>8-12</td><td>1 min entre series</td></tr>
+    </tbody>
+  </table></div>
+  <div class="block-title" style="margin-top:12px;"><span class="dot" style="background:var(--acc)"></span>Accessory Work (2) <span class="meta mono">2-3 series</span></div>
+  <div class="table-scroll"><table class="ex-table">
+    <thead><tr><th>Ejercicio</th><th>Reps</th><th>Descanso</th></tr></thead>
+    <tbody>
+      <tr><td>Remo tripode a una mano con DB (der.)</td><td>8-12</td><td>30 s</td></tr>
+      <tr><td>Remo tripode a una mano con DB (izq.)</td><td>8-12</td><td>1 min entre series</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="block-title"><span class="dot" style="background:var(--extra)"></span>Extra Work</div>
+  <div class="table-scroll"><table class="ex-table">
+    <thead><tr><th>Ejercicio</th><th>Reps</th><th>Notas</th></tr></thead>
+    <tbody>
+      <tr><td>Remo al mentón con banda (upright row)</td><td>50 (acumuladas)</td><td>Reparte reps y descanso como necesites, priorizando la técnica.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="block-title"><span class="dot" style="background:var(--cool)"></span>Cool-down <span class="meta mono">2 series</span></div>
+  <div class="table-scroll"><table class="ex-table">
+    <thead><tr><th>Ejercicio</th><th>Tiempo</th><th>Notas</th></tr></thead>
+    <tbody>
+      <tr><td>Estiramiento de pecho asistido (puerta/rack)</td><td>30 s por lado</td><td></td></tr>
+      <tr><td>Estiramiento de dorsal en pared</td><td>1 min</td><td></td></tr>
+    </tbody>
+  </table></div>
+</div>
+
+<!-- ============ DÍA 3 ============ -->
+<div class="tab-panel" id="tab-d3">
+  <div class="day-head"><h2>DÍA 3</h2>
+    <span class="day-check"><input type="checkbox" id="chk-d3" data-key="d3" onclick="toggleDone(this)"><label for="chk-d3">Hecho</label></span>
+  </div>
+  <div class="day-sub">Pliometría/velocidad + core</div>
+
+  <div class="block-title"><span class="dot" style="background:var(--warm)"></span>Warm-up <span class="meta mono">3 series</span></div>
+  <div class="pill">Descanso: 30 s entre series</div>
+  <div class="table-scroll"><table class="ex-table">
+    <thead><tr><th>Ejercicio</th><th>Tiempo</th><th>Notas</th></tr></thead>
+    <tbody>
+      <tr><td>Line hop adelante-atrás</td><td>30 s</td><td></td></tr>
+      <tr><td>DB halo</td><td>30 s</td><td></td></tr>
+      <tr><td>Line hop lateral</td><td>30 s</td><td></td></tr>
+      <tr><td>Estiramiento de dorsal</td><td>30 s</td><td></td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="block-title"><span class="dot" style="background:var(--cond)"></span>Conditioning Work <span class="meta mono">AMRAP 12 min</span></div>
+  <div class="pill">Pacing: sostenible-agresivo (RPE 7-8)</div>
+  <div class="table-scroll"><table class="ex-table">
+    <thead><tr><th>Ejercicio</th><th>Reps (escalera)</th><th>Descanso</th></tr></thead>
+    <tbody>
+      <tr><td>Shuttle run (50 pies / 15 m ida y vuelta)</td><td>2-4-6-8...</td><td rowspan="2" style="vertical-align:middle;">1 min entre rondas</td></tr>
+      <tr><td>Broad jump o box jump</td><td>2-4-6-8...</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note tight">2 shuttle runs + 2 saltos, luego 4 y 4, luego 6 y 6, luego 8 y 8 — sigue subiendo de 2 en 2 reps durante 12 minutos. AMRAP = tantas rondas como puedas completar en el tiempo manteniendo buena técnica. Si tienes cajón pliométrico, puedes usar box jump en vez de broad jump en este o cualquier otro WOD del programa.</div>
+
+  <div class="block-title"><span class="dot" style="background:var(--acc)"></span>Accessory Work <span class="meta mono">2-4 series</span></div>
+  <div class="pill">Pacing: sostenible (RPE 6-7)</div>
+  <div class="table-scroll"><table class="ex-table">
+    <thead><tr><th>Ejercicio</th><th>Tiempo</th><th>Descanso</th></tr></thead>
+    <tbody>
+      <tr><td>Tuck up</td><td>30 s</td><td>10 s</td></tr>
+      <tr><td>Side DB bend (der.)</td><td>30 s</td><td>10 s</td></tr>
+      <tr><td>Side DB bend (izq.)</td><td>30 s</td><td>10 s</td></tr>
+      <tr><td>Flutter kick</td><td>30 s</td><td>1 min entre series</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note tight">Circuito de core: recorre los 4 ejercicios con control y descanso mínimo entre ellos, 2-4 series completas.</div>
+
+  <div class="block-title"><span class="dot" style="background:var(--cool)"></span>Cool-down <span class="meta mono">2 series</span></div>
+  <div class="table-scroll"><table class="ex-table">
+    <thead><tr><th>Ejercicio</th><th>Tiempo</th><th>Notas</th></tr></thead>
+    <tbody>
+      <tr><td>Seal stretch</td><td>1 min</td><td></td></tr>
+      <tr><td>Butterfly stretch</td><td>1 min</td><td></td></tr>
+    </tbody>
+  </table></div>
+</div>
+
+<!-- ============ DÍA 4 ============ -->
+<div class="tab-panel" id="tab-d4">
+  <div class="day-head"><h2>DÍA 4</h2>
+    <span class="day-check"><input type="checkbox" id="chk-d4" data-key="d4" onclick="toggleDone(this)"><label for="chk-d4">Hecho</label></span>
+  </div>
+  <div class="day-sub">Carrera + Double DB Thruster + glúteo/cadera</div>
+
+  <div class="block-title"><span class="dot" style="background:var(--warm)"></span>Warm-up <span class="meta mono">3 series</span></div>
+  <div class="table-scroll"><table class="ex-table">
+    <thead><tr><th>Ejercicio</th><th>Reps / Tiempo</th><th>Notas</th></tr></thead>
+    <tbody>
+      <tr><td>Trabajo aeróbico</td><td>1 min</td><td></td></tr>
+      <tr><td>Zancada atrás con alcance overhead</td><td>12</td><td></td></tr>
+      <tr><td>Kang squat</td><td>8</td><td></td></tr>
+      <tr><td>Toe walk</td><td>30 s</td><td></td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="block-title"><span class="dot" style="background:var(--cond)"></span>Conditioning Work <span class="meta mono">8-10 rondas</span></div>
+  <div class="pill">Pacing: agresivo (RPE 8-9)</div>
+  <div class="pill">Time cap: 2 min/ronda</div>
+  <div class="table-scroll"><table class="ex-table">
+    <thead><tr><th>Ejercicio</th><th>Reps / Distancia</th><th>Descanso</th></tr></thead>
+    <tbody>
+      <tr><td>Carrera</td><td>100 m</td><td rowspan="2" style="vertical-align:middle;">1 min entre rondas</td></tr>
+      <tr><td>Double DB thruster</td><td>5</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note tight">Empuja un ritmo agresivo — tienes un minuto completo de recuperación entre rondas.</div>
+
+  <div class="block-title"><span class="dot" style="background:var(--acc)"></span>Accessory Work <span class="meta mono">3-4 series (superserie)</span></div>
+  <div class="table-scroll"><table class="ex-table">
+    <thead><tr><th>Ejercicio</th><th>Reps</th><th>Descanso</th></tr></thead>
+    <tbody>
+      <tr><td>Curtsy lunge alterna con DB (por lado)</td><td>6-8</td><td>30 s</td></tr>
+      <tr><td>Glute bridge con carga</td><td>8-12</td><td>1 min entre series</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note tight">Superserie: 6-8 curtsy lunges por lado, descansa 30 s, y entra directo a 8-12 glute bridges con carga. Descansa 1 min tras completar ambos y repite hasta 3-4 series totales.</div>
+
+  <div class="block-title"><span class="dot" style="background:var(--extra)"></span>Extra Work</div>
+  <div class="table-scroll"><table class="ex-table">
+    <thead><tr><th>Ejercicio</th><th>Reps</th><th>Notas</th></tr></thead>
+    <tbody>
+      <tr><td>Curl femoral prono con banda</td><td>50 (acumuladas)</td><td>Reparte reps y descanso como necesites, priorizando la técnica.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="block-title"><span class="dot" style="background:var(--cool)"></span>Cool-down <span class="meta mono">2 series</span></div>
+  <div class="table-scroll"><table class="ex-table">
+    <thead><tr><th>Ejercicio</th><th>Tiempo</th><th>Notas</th></tr></thead>
+    <tbody>
+      <tr><td>Supine twist</td><td>1 min por lado</td><td></td></tr>
+      <tr><td>Estiramiento de isquios de pie, elevado</td><td>1 min por lado</td><td></td></tr>
+    </tbody>
+  </table></div>
+</div>
+
+<!-- ============ DÍA 5 ============ -->
+<div class="tab-panel" id="tab-d5">
+  <div class="day-head"><h2>DÍA 5</h2>
+    <span class="day-check"><input type="checkbox" id="chk-d5" data-key="d5" onclick="toggleDone(this)"><label for="chk-d5">Hecho</label></span>
+  </div>
+  <div class="day-sub">DB Hang Snatch + sit-ups EMOM + brazo</div>
+
+  <div class="block-title"><span class="dot" style="background:var(--warm)"></span>Warm-up <span class="meta mono">3 series</span></div>
+  <div class="table-scroll"><table class="ex-table">
+    <thead><tr><th>Ejercicio</th><th>Reps / Tiempo</th><th>Notas</th></tr></thead>
+    <tbody>
+      <tr><td>Trabajo aeróbico</td><td>1 min</td><td></td></tr>
+      <tr><td>Inchworm walkout a shoulder tap</td><td>5</td><td></td></tr>
+      <tr><td>Curl de bíceps con banda</td><td>10</td><td></td></tr>
+      <tr><td>Prone TYIs</td><td>5</td><td></td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="block-title"><span class="dot" style="background:var(--cond)"></span>Conditioning Work <span class="meta mono">For time</span></div>
+  <div class="pill">Pacing: sostenible (RPE 6-7)</div>
+  <div class="pill">Time cap: 15 min</div>
+  <div class="table-scroll"><table class="ex-table">
+    <thead><tr><th>Ejercicio</th><th>Reps</th><th>Notas</th></tr></thead>
+    <tbody>
+      <tr><td>Alternating DB hang snatch</td><td>100 (por tiempo)</td><td>Lo más rápido posible manteniendo buena técnica.</td></tr>
+      <tr><td>Butterfly sit-up</td><td>10 cada minuto</td><td>EMOM desde 0:00: cada minuto en punto, para y haz 10, luego sigue con los hang snatch.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note tight">Completa 100 alternating DB hang snatch lo más rápido posible. Cada minuto en punto (empezando en 0:00), para y haz 10 butterfly sit-ups, y vuelve a los snatch. Cap de 15 minutos para todo.</div>
+
+  <div class="block-title"><span class="dot" style="background:var(--acc)"></span>Accessory Work <span class="meta mono">3-4 series (superserie)</span></div>
+  <div class="table-scroll"><table class="ex-table">
+    <thead><tr><th>Ejercicio</th><th>Reps</th><th>Descanso</th></tr></thead>
+    <tbody>
+      <tr><td>Curl de bíceps con DB, agarre crush grip</td><td>8-12</td><td>30 s</td></tr>
+      <tr><td>Skull crusher con DB, agarre crush grip</td><td>8-12</td><td>1 min entre series</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="block-title"><span class="dot" style="background:var(--extra)"></span>Extra Work</div>
+  <div class="table-scroll"><table class="ex-table">
+    <thead><tr><th>Ejercicio</th><th>Reps</th><th>Notas</th></tr></thead>
+    <tbody>
+      <tr><td>Extensión de tríceps con banda</td><td>50 (acumuladas)</td><td>Reparte reps y descanso como necesites, priorizando la técnica.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="block-title"><span class="dot" style="background:var(--cool)"></span>Cool-down <span class="meta mono">2 series</span></div>
+  <div class="table-scroll"><table class="ex-table">
+    <thead><tr><th>Ejercicio</th><th>Tiempo</th><th>Notas</th></tr></thead>
+    <tbody>
+      <tr><td>Estiramiento de tríceps inclinado</td><td>30 s por lado</td><td></td></tr>
+      <tr><td>Postura del niño (child pose)</td><td>1 min</td><td></td></tr>
+    </tbody>
+  </table></div>
+</div>
+
+<footer>Programa Funcional 1 Semana · Mancuernas (DB) · generado para Isaac</footer>
+
+<script>
+  function storageGet() {
+    try { return JSON.parse(localStorage.getItem('isaac_1wk_db_progress') || '{}'); } catch (e) { return window.__progressMemory || {}; }
+  }
+  function storageSet(obj) {
+    try { localStorage.setItem('isaac_1wk_db_progress', JSON.stringify(obj)); } catch (e) { window.__progressMemory = obj; }
+  }
+  function toggleDone(input) {
+    var st = storageGet();
+    st[input.dataset.key] = input.checked;
+    storageSet(st);
+    updateProgress();
+  }
+  function resetProgress() {
+    if (!confirm('¿Reiniciar todo el progreso marcado?')) return;
+    storageSet({});
+    updateProgress();
+  }
+  function updateProgress() {
+    var st = storageGet();
+    var all = document.querySelectorAll('input[type=checkbox][data-key]');
+    var totalDone = 0;
+    all.forEach(function (chk) {
+      var done = !!st[chk.dataset.key];
+      chk.checked = done;
+      if (done) totalDone++;
+      var tabBtn = document.getElementById('tabbtn-' + chk.dataset.key);
+      if (tabBtn) tabBtn.classList.toggle('done', done);
+    });
+    document.getElementById('prog-total').textContent = totalDone + '/5';
+    document.getElementById('prog-pct').textContent = Math.round(totalDone / 5 * 100) + '%';
+  }
+
+  function showTab(id, btn) {
+    document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
+    document.getElementById('tab-' + id).classList.add('active');
+    document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('tabbar').scrollLeft = btn.offsetLeft - 16;
+    try { localStorage.setItem('isaac_1wk_db_tab', id); } catch (e) {}
+    window.scrollTo(0, 0);
+  }
+
+  (function () {
+    updateProgress();
+    var savedTab = null;
+    try { savedTab = localStorage.getItem('isaac_1wk_db_tab'); } catch (e) {}
+    if (savedTab) {
+      var btn = document.getElementById('tabbtn-' + savedTab);
+      if (btn) showTab(savedTab, btn);
+    }
+  })();
+</script>
+
+</body>
+</html>
