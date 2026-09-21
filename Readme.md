@@ -8,9 +8,9 @@
          /   \
 ```
 
-Hola. Soy un padre de casi 45 anos que un dia descubrio que pesaba 140 kg y que las escaleras no tenian por que ser un enemigo final. Ahora rondo los 80 kg.
+Hola. Soy un padre de casi 45 años que un día descubrió que pesaba 140 kg y que las escaleras no tenían por que ser un enemigo final. Ahora rondo los 80 kg.
 
-Como el deporte no era precisamente mi gran pasion, hice lo que se me da mejor para motivarme: recoger datos. Porque si no puedes convertir algo en una tabla, una grafica o una lista de cosas hechas, parece que no ha ocurrido. Ciencia de padre, pero ciencia al fin y al cabo.
+Como el deporte no era precisamente mi gran pasion, hice lo que se me da mejor para motivarme: recoger datos. Porque si no puedes convertir algo en una tabla, una grafica o una lista de cosas hechas, parece que no ha ocurrido.
 
 ## Que hay aqui
 
@@ -27,7 +27,7 @@ Los WODs de aqui son las programaciones, sin mis datos de rendimiento. Nadie nec
 
 Para no acabar administrando todo en una libreta, tres notas del movil y un Excel con opiniones muy fuertes, he desarrollado una aplicacion para gestionar, generar y organizar los WODs, y para mantener trazabilidad de lo entrenado.
 
-Despues de 18 anos como autonomo, montar otro negocio es justo lo que no quiero hacer. Puede que algun dia libere el repositorio del software; de momento, aqui dejo los WODs para sufrir con cierta organizacion.
+Despues de 18 años como autonomo, montar otro negocio es justo lo que no quiero hacer. Puede que algun dia libere el repositorio del software; de momento, aqui dejo los WODs para sufrir con cierta organizacion.
 
 ## La filosofia
 
