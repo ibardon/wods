@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>3 WODs · Fuerza + Complex</title>
+<title>WODs 1–12 · Fuerza + Metcon</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -12,10 +12,8 @@
   --bg:#141517; --surface:#1d1f22; --surface2:#25282c; --line:#34383d;
   --text:#ecebe6; --muted:#9a9d9f;
   --blue:#4a9eff; --gold:#d4a820; --orange:#ff7b4a; --red:#ff5a5a;
-  color-scheme:dark;
-  box-sizing:border-box;
-  padding-top:env(safe-area-inset-top,0px);
-  padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:dark; box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){ --bg:#141517; --surface:#1d1f22; --surface2:#25282c; --line:#34383d; --text:#ecebe6; --muted:#9a9d9f; color-scheme:dark; }
@@ -28,13 +26,17 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:"IBM Plex Mono"
 h1,h2,h3{font-family:"Bebas Neue","Arial Narrow",Impact,sans-serif;font-weight:400;letter-spacing:.02em;margin:0}
 header h1{font-size:46px;line-height:.95}
 header p{color:var(--muted);margin:8px 0 0;font-size:13px}
-.rule{display:flex;gap:6px;margin:14px 0 20px}
-.rule span{height:4px;flex:1;border-radius:2px}
+.legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin:14px 0 6px;font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.global{margin-top:14px}
+.global p{margin:0 0 6px;font-size:12px;color:var(--muted)}
+.week{font-size:28px;color:var(--muted);margin:26px 0 10px;border-bottom:1px solid var(--line);padding-bottom:4px}
 .wod{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--c);border-radius:10px;margin-bottom:16px;overflow:hidden}
-.wod>button{all:unset;display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:48px;padding:12px 14px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-.wod>button:focus-visible{outline:2px solid var(--c);outline-offset:-2px}
-.wod>button h2{font-size:30px;color:var(--c);line-height:1}
-.wod>button small{display:block;color:var(--muted);font-family:"IBM Plex Mono",monospace;font-size:12px;margin-top:2px}
+.tog{all:unset;display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:48px;padding:12px 14px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.tog:focus-visible{outline:2px solid var(--c);outline-offset:-2px}
+.tog h2{font-size:30px;color:var(--c);line-height:1}
+.tog small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
 .chev{width:12px;height:12px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .2s;flex:none;margin-right:4px}
 .wod.closed .chev{transform:rotate(-45deg)}
 .wod.closed .body{display:none}
@@ -43,6 +45,14 @@ header p{color:var(--muted);margin:8px 0 0;font-size:13px}
 .block h3{font-size:22px;line-height:1;display:flex;justify-content:space-between;align-items:center;gap:10px}
 .block h3 em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--c);border:1px solid var(--c);border-radius:4px;padding:2px 6px;white-space:nowrap}
 .sub{color:var(--muted);font-size:12px;margin:4px 0 0}
+.mat{font-size:12px;margin:8px 0 0;padding:6px 8px;border-left:2px solid var(--c);background:var(--surface)}
+.seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:12px}
+.seg button{all:unset;flex:1;text-align:center;min-height:48px;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--muted);cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--c,var(--text));color:var(--bg);font-weight:600}
+.seg button:focus-visible{outline:2px solid var(--c,var(--text));outline-offset:-2px}
+.global .seg{--c:var(--text)}
+.metcon[data-mode="c"] .v-s,.metcon[data-mode="s"] .v-c{display:none}
 .tw{overflow-x:auto;margin-top:10px;-webkit-overflow-scrolling:touch}
 table{width:100%;border-collapse:collapse;min-width:300px}
 th,td{text-align:left;vertical-align:top;padding:8px 6px;border-bottom:1px solid var(--line)}
@@ -56,7 +66,7 @@ tr:last-child td{border-bottom:0}
 .done input:checked::after{content:"";width:6px;height:11px;border:solid var(--bg);border-width:0 2.5px 2.5px 0;transform:rotate(45deg) translate(-1px,-1px)}
 .done input:focus-visible{outline:2px solid var(--c);outline-offset:2px}
 .done:has(input:checked){color:var(--text)}
-.notes{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px}
+.notes{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:26px}
 .notes h2{font-size:26px;margin-bottom:6px}
 .notes ul{margin:0;padding-left:18px}
 .notes li{margin:6px 0;font-size:13px}
@@ -67,82 +77,360 @@ tr:last-child td{border-bottom:0}
 <body>
 <div class="wrap">
 <header>
-  <h1>Fuerza + Complex</h1>
-  <p>3 sesiones sin movimientos por encima del hombro. Metcon de 20' en For Time o EMOM.</p>
-  <div class="rule"><span style="background:var(--blue)"></span><span style="background:var(--orange)"></span><span style="background:var(--gold)"></span></div>
+  <h1>WODs 1–12</h1>
+  <p>Fuerza + metcon de 20'. Cada metcon tiene versión con complex de barra y versión sin complex con DB o KB. Sin movimientos por encima del hombro.</p>
+  <div class="legend">
+    <span><i style="background:var(--blue)"></i>Front Squat</span>
+    <span><i style="background:var(--red)"></i>Back Squat</span>
+    <span><i style="background:var(--orange)"></i>Deadlift</span>
+    <span><i style="background:var(--gold)"></i>Clean</span>
+  </div>
+  <div class="global">
+    <p>Cambiar todos los metcon a la vez</p>
+    <div class="seg" role="group" aria-label="Versión de todos los metcon">
+      <button type="button" data-all="c" aria-pressed="true">Con complex</button>
+      <button type="button" data-all="s" aria-pressed="false">Sin complex</button>
+    </div>
+  </div>
 </header>
 
-<!-- WOD 1 -->
-<section class="wod" style="--c:var(--blue)" data-id="w1">
-  <button type="button" aria-expanded="true"><div><h2>WOD 1 · Front Squat</h2><small>5×5 + EMOM 20'</small></div><span class="chev"></span></button>
+<h2 class="week">Bloque 1 · WOD 1–3</h2>
+<section class="wod" style="--c:var(--blue)">
+  <button type="button" class="tog" aria-expanded="true"><div><h2>WOD 1 · Front Squat</h2><small>5×5 + EMOM 20'</small></div><span class="chev"></span></button>
   <div class="body">
     <div class="block">
       <h3>Fuerza <em>Descanso 2'</em></h3>
-      <div class="tw"><table><thead><tr><th>Ejercicio</th><th>Esquema</th></tr></thead><tbody>
-        <tr><td>Front Squat</td><td>5×5 al 70–75 % 1RM</td></tr>
-      </tbody></table></div>
-      <label class="done"><input type="checkbox" data-k="w1-fuerza">Fuerza hecha</label>
+      <div class="tw"><table><thead><tr><th>Ejercicio</th><th>Esquema</th></tr></thead><tbody><tr><td>Front Squat</td><td>5×5 al 70–75 % 1RM</td></tr></tbody></table></div>
+      <label class="done"><input type="checkbox" data-k="w1-f">Fuerza hecha</label>
     </div>
-    <div class="block">
-      <h3>Metcon <em>EMOM 20'</em></h3>
-      <p class="sub">5 rondas de 4 minutos</p>
-      <div class="tw"><table><thead><tr><th>Min</th><th>Movimiento</th></tr></thead><tbody>
-        <tr><td>1</td><td><span class="cx">Complex:</span> 2 Power Clean + 4 Front Squat (45–50 % 1RM del front squat)</td></tr>
-        <tr><td>2</td><td>12 cal remo</td></tr>
-        <tr><td>3</td><td>15 KB swing ruso (hasta la altura del pecho)</td></tr>
-        <tr><td>4</td><td>40 m farmer carry (KB o DB moderadas)</td></tr>
-      </tbody></table></div>
-      <label class="done"><input type="checkbox" data-k="w1-metcon">Metcon hecho</label>
+    <div class="block metcon" data-id="w1" data-mode="c">
+      <div class="seg" role="group" aria-label="Versión del metcon">
+        <button type="button" data-v="c" aria-pressed="true">Con complex</button>
+        <button type="button" data-v="s" aria-pressed="false">Sin complex</button>
+      </div>
+      <div class="v v-c">
+        <h3>Metcon <em>EMOM 20'</em></h3>
+        <p class="sub">5 rondas de 4 minutos</p>
+        <div class="tw"><table><thead><tr><th>Min</th><th>Movimiento</th></tr></thead><tbody><tr><td>1</td><td><span class="cx">Complex:</span> 2 Power Clean + 4 Front Squat (45–50 % 1RM del front squat)</td></tr><tr><td>2</td><td>12 cal remo</td></tr><tr><td>3</td><td>15 KB swing ruso (hasta la altura del pecho)</td></tr><tr><td>4</td><td>40 m farmer carry (KB o DB moderadas)</td></tr></tbody></table></div>
+      </div>
+      <div class="v v-s">
+        <h3>Metcon <em>EMOM 20'</em></h3>
+        <p class="sub">5 rondas de 4 minutos</p>
+        <p class="mat">Mismo peso todo el metcon: 2 DB, sugerido 15 kg cada una (12,5 kg si el hang power clean se rompe)</p>
+        <div class="tw"><table><thead><tr><th>Min</th><th>Movimiento</th></tr></thead><tbody><tr><td>1</td><td>14 DB Front Squat</td></tr><tr><td>2</td><td>15 cal remo</td></tr><tr><td>3</td><td>14 DB Hang Power Clean</td></tr><tr><td>4</td><td>60 m farmer carry</td></tr></tbody></table></div>
+      </div>
+      <label class="done"><input type="checkbox" data-k="w1-m">Metcon hecho</label>
     </div>
   </div>
 </section>
-
-<!-- WOD 2 -->
-<section class="wod" style="--c:var(--orange)" data-id="w2">
-  <button type="button" aria-expanded="true"><div><h2>WOD 2 · Deadlift</h2><small>Ascendente RPE 8 + For Time 20'</small></div><span class="chev"></span></button>
+<section class="wod" style="--c:var(--orange)">
+  <button type="button" class="tog" aria-expanded="true"><div><h2>WOD 2 · Deadlift</h2><small>Ascendente RPE 8 + For Time 20'</small></div><span class="chev"></span></button>
   <div class="body">
     <div class="block">
       <h3>Fuerza <em>Descanso 2'30''</em></h3>
-      <div class="tw"><table><thead><tr><th>Ejercicio</th><th>Esquema</th></tr></thead><tbody>
-        <tr><td>Deadlift</td><td>5-4-3-3-3 en ascendente hasta RPE 8</td></tr>
-      </tbody></table></div>
-      <label class="done"><input type="checkbox" data-k="w2-fuerza">Fuerza hecha</label>
+      <div class="tw"><table><thead><tr><th>Ejercicio</th><th>Esquema</th></tr></thead><tbody><tr><td>Deadlift</td><td>5-4-3-3-3 en ascendente hasta RPE 8</td></tr></tbody></table></div>
+      <label class="done"><input type="checkbox" data-k="w2-f">Fuerza hecha</label>
     </div>
-    <div class="block">
-      <h3>Metcon <em>For Time · cap 20'</em></h3>
-      <p class="sub">4 rondas</p>
-      <div class="tw"><table><thead><tr><th>Reps</th><th>Movimiento</th></tr></thead><tbody>
-        <tr><td>6+6+6</td><td><span class="cx">Complex:</span> Deadlift + Hang Power Clean + Front Squat (40–50 % 1RM del clean)</td></tr>
-        <tr><td>15</td><td>Cal bike (Assault/Echo)</td></tr>
-        <tr><td>8</td><td>Burpee lateral sobre la barra, sin extender los brazos arriba en el salto</td></tr>
-      </tbody></table></div>
-      <label class="done"><input type="checkbox" data-k="w2-metcon">Metcon hecho</label>
+    <div class="block metcon" data-id="w2" data-mode="c">
+      <div class="seg" role="group" aria-label="Versión del metcon">
+        <button type="button" data-v="c" aria-pressed="true">Con complex</button>
+        <button type="button" data-v="s" aria-pressed="false">Sin complex</button>
+      </div>
+      <div class="v v-c">
+        <h3>Metcon <em>For Time · cap 20'</em></h3>
+        <p class="sub">4 rondas</p>
+        <div class="tw"><table><thead><tr><th>Reps</th><th>Movimiento</th></tr></thead><tbody><tr><td>6+6+6</td><td><span class="cx">Complex:</span> Deadlift + Hang Power Clean + Front Squat (40–50 % 1RM del clean)</td></tr><tr><td>15</td><td>Cal bike (Assault/Echo)</td></tr><tr><td>8</td><td>Burpee lateral sobre la barra, sin brazos arriba</td></tr></tbody></table></div>
+      </div>
+      <div class="v v-s">
+        <h3>Metcon <em>For Time · cap 20'</em></h3>
+        <p class="sub">4 rondas</p>
+        <p class="mat">Mismo peso todo el metcon: 2 DB, sugerido 15 kg cada una (12,5 kg si el hang power clean se rompe)</p>
+        <div class="tw"><table><thead><tr><th>Reps</th><th>Movimiento</th></tr></thead><tbody><tr><td>15</td><td>DB Deadlift</td></tr><tr><td>12</td><td>DB Hang Power Clean</td></tr><tr><td>10</td><td>DB Front Squat</td></tr><tr><td>15</td><td>Cal bike (Assault/Echo)</td></tr><tr><td>10</td><td>Burpee lateral sobre las DB, sin brazos arriba</td></tr></tbody></table></div>
+      </div>
+      <label class="done"><input type="checkbox" data-k="w2-m">Metcon hecho</label>
     </div>
   </div>
 </section>
-
-<!-- WOD 3 -->
-<section class="wod" style="--c:var(--gold)" data-id="w3">
-  <button type="button" aria-expanded="true"><div><h2>WOD 3 · Clean + Box Squat</h2><small>EMOM 10' + 4×6 + EMOM 20'</small></div><span class="chev"></span></button>
+<section class="wod" style="--c:var(--gold)">
+  <button type="button" class="tog" aria-expanded="true"><div><h2>WOD 3 · Clean + Back Squat al cajón</h2><small>EMOM 10' + 4×6 + EMOM 20'</small></div><span class="chev"></span></button>
   <div class="body">
     <div class="block">
       <h3>Fuerza <em>Descanso 2'</em></h3>
-      <div class="tw"><table><thead><tr><th>Ejercicio</th><th>Esquema</th></tr></thead><tbody>
-        <tr><td>A. Clean</td><td>EMOM 10': 2 reps al 70–80 % 1RM</td></tr>
-        <tr><td>B. Back Squat al cajón</td><td>4×6 al 65 %, bajando controlado al cajón y sin rebotar</td></tr>
-      </tbody></table></div>
-      <label class="done"><input type="checkbox" data-k="w3-fuerza">Fuerza hecha</label>
+      <div class="tw"><table><thead><tr><th>Ejercicio</th><th>Esquema</th></tr></thead><tbody><tr><td>A. Clean</td><td>EMOM 10': 2 reps al 70–80 % 1RM</td></tr><tr><td>B. Back Squat al cajón</td><td>4×6 al 65 %, controlado al cajón y sin rebotar</td></tr></tbody></table></div>
+      <label class="done"><input type="checkbox" data-k="w3-f">Fuerza hecha</label>
     </div>
+    <div class="block metcon" data-id="w3" data-mode="c">
+      <div class="seg" role="group" aria-label="Versión del metcon">
+        <button type="button" data-v="c" aria-pressed="true">Con complex</button>
+        <button type="button" data-v="s" aria-pressed="false">Sin complex</button>
+      </div>
+      <div class="v v-c">
+        <h3>Metcon <em>EMOM 20'</em></h3>
+        <p class="sub">5 rondas de 4 minutos</p>
+        <div class="tw"><table><thead><tr><th>Min</th><th>Movimiento</th></tr></thead><tbody><tr><td>1</td><td><span class="cx">Complex ×2:</span> Clean Deadlift + Hang Power Clean + Power Clean + Front Squat (50–55 % 1RM del clean)</td></tr><tr><td>2</td><td>12 Box step-over</td></tr><tr><td>3</td><td><span class="cx">Complex ×2</span> (el mismo del minuto 1)</td></tr><tr><td>4</td><td>15 cal remo</td></tr></tbody></table></div>
+      </div>
+      <div class="v v-s">
+        <h3>Metcon <em>EMOM 20'</em></h3>
+        <p class="sub">5 rondas de 4 minutos</p>
+        <p class="mat">Mismo peso todo el metcon: 2 DB, sugerido 15 kg cada una (12,5 kg si el hang power clean se rompe)</p>
+        <div class="tw"><table><thead><tr><th>Min</th><th>Movimiento</th></tr></thead><tbody><tr><td>1</td><td>12 DB Hang Power Clean</td></tr><tr><td>2</td><td>15 Box step-over con las DB en la mano</td></tr><tr><td>3</td><td>14 DB Front Squat</td></tr><tr><td>4</td><td>18 cal remo</td></tr></tbody></table></div>
+      </div>
+      <label class="done"><input type="checkbox" data-k="w3-m">Metcon hecho</label>
+    </div>
+  </div>
+</section>
+<h2 class="week">Bloque 2 · WOD 4–6</h2>
+<section class="wod" style="--c:var(--red)">
+  <button type="button" class="tog" aria-expanded="true"><div><h2>WOD 4 · Back Squat</h2><small>5×5 + EMOM 20'</small></div><span class="chev"></span></button>
+  <div class="body">
     <div class="block">
-      <h3>Metcon <em>EMOM 20'</em></h3>
-      <p class="sub">5 rondas de 4 minutos</p>
-      <div class="tw"><table><thead><tr><th>Min</th><th>Movimiento</th></tr></thead><tbody>
-        <tr><td>1</td><td><span class="cx">Complex ×2:</span> Clean Deadlift + Hang Power Clean + Power Clean + Front Squat (50–55 % 1RM del clean)</td></tr>
-        <tr><td>2</td><td>12 Box step-over</td></tr>
-        <tr><td>3</td><td><span class="cx">Complex ×2</span> (el mismo del minuto 1)</td></tr>
-        <tr><td>4</td><td>15 cal remo</td></tr>
-      </tbody></table></div>
-      <label class="done"><input type="checkbox" data-k="w3-metcon">Metcon hecho</label>
+      <h3>Fuerza <em>Descanso 2'</em></h3>
+      <div class="tw"><table><thead><tr><th>Ejercicio</th><th>Esquema</th></tr></thead><tbody><tr><td>Back Squat</td><td>5×5 al 70–75 % 1RM</td></tr></tbody></table></div>
+      <label class="done"><input type="checkbox" data-k="w4-f">Fuerza hecha</label>
+    </div>
+    <div class="block metcon" data-id="w4" data-mode="c">
+      <div class="seg" role="group" aria-label="Versión del metcon">
+        <button type="button" data-v="c" aria-pressed="true">Con complex</button>
+        <button type="button" data-v="s" aria-pressed="false">Sin complex</button>
+      </div>
+      <div class="v v-c">
+        <h3>Metcon <em>EMOM 20'</em></h3>
+        <p class="sub">5 rondas de 4 minutos</p>
+        <div class="tw"><table><thead><tr><th>Min</th><th>Movimiento</th></tr></thead><tbody><tr><td>1</td><td><span class="cx">Complex:</span> 4 RDL + 4 Bent-over Row + 2 Hang Power Clean + 4 Front Squat (40 % 1RM del clean)</td></tr><tr><td>2</td><td>15 cal bike</td></tr><tr><td>3</td><td>30 dobles o 60 simples de comba</td></tr><tr><td>4</td><td>10 box jump (step-down)</td></tr></tbody></table></div>
+      </div>
+      <div class="v v-s">
+        <h3>Metcon <em>EMOM 20'</em></h3>
+        <p class="sub">5 rondas de 4 minutos</p>
+        <p class="mat">Mismo peso todo el metcon: 2 DB, sugerido 15 kg cada una (12,5 kg si el hang power clean se rompe)</p>
+        <div class="tw"><table><thead><tr><th>Min</th><th>Movimiento</th></tr></thead><tbody><tr><td>1</td><td>14 DB RDL</td></tr><tr><td>2</td><td>18 cal bike</td></tr><tr><td>3</td><td>14 DB Bent-over Row</td></tr><tr><td>4</td><td>12 DB Front Squat</td></tr></tbody></table></div>
+      </div>
+      <label class="done"><input type="checkbox" data-k="w4-m">Metcon hecho</label>
+    </div>
+  </div>
+</section>
+<section class="wod" style="--c:var(--gold)">
+  <button type="button" class="tog" aria-expanded="true"><div><h2>WOD 5 · Clean</h2><small>Clean + Clean Pull + For Time 20'</small></div><span class="chev"></span></button>
+  <div class="body">
+    <div class="block">
+      <h3>Fuerza <em>Cada 90''</em></h3>
+      <div class="tw"><table><thead><tr><th>Ejercicio</th><th>Esquema</th></tr></thead><tbody><tr><td>A. Clean</td><td>6×2 al 70–75 % 1RM</td></tr><tr><td>B. Clean Pull</td><td>3×3 al 90 % 1RM del clean</td></tr></tbody></table></div>
+      <label class="done"><input type="checkbox" data-k="w5-f">Fuerza hecha</label>
+    </div>
+    <div class="block metcon" data-id="w5" data-mode="c">
+      <div class="seg" role="group" aria-label="Versión del metcon">
+        <button type="button" data-v="c" aria-pressed="true">Con complex</button>
+        <button type="button" data-v="s" aria-pressed="false">Sin complex</button>
+      </div>
+      <div class="v v-c">
+        <h3>Metcon <em>For Time · cap 20'</em></h3>
+        <p class="sub">15-12-9-6</p>
+        <div class="tw"><table><thead><tr><th>Reps</th><th>Movimiento</th></tr></thead><tbody><tr><td>15-12-9-6</td><td><span class="cx">Complex:</span> 1 Hang Power Clean + 1 Front Squat = 1 rep (40 % 1RM del clean)</td></tr><tr><td>15-12-9-6</td><td>Cal remo</td></tr><tr><td>15-12-9-6</td><td>KB swing ruso (hasta la altura del pecho)</td></tr></tbody></table></div>
+      </div>
+      <div class="v v-s">
+        <h3>Metcon <em>For Time · cap 20'</em></h3>
+        <p class="sub">21-15-12-9</p>
+        <p class="mat">Mismo peso todo el metcon: 1 KB, sugerido 20 kg (16 kg si el goblet se rompe)</p>
+        <div class="tw"><table><thead><tr><th>Reps</th><th>Movimiento</th></tr></thead><tbody><tr><td>21-15-12-9</td><td>KB Goblet Squat</td></tr><tr><td>21-15-12-9</td><td>Cal remo</td></tr><tr><td>21-15-12-9</td><td>KB swing ruso (hasta la altura del pecho)</td></tr></tbody></table></div>
+      </div>
+      <label class="done"><input type="checkbox" data-k="w5-m">Metcon hecho</label>
+    </div>
+  </div>
+</section>
+<section class="wod" style="--c:var(--orange)">
+  <button type="button" class="tog" aria-expanded="true"><div><h2>WOD 6 · Deadlift</h2><small>4×4 + EMOM 20'</small></div><span class="chev"></span></button>
+  <div class="body">
+    <div class="block">
+      <h3>Fuerza <em>Descanso 2'30''</em></h3>
+      <div class="tw"><table><thead><tr><th>Ejercicio</th><th>Esquema</th></tr></thead><tbody><tr><td>Deadlift</td><td>4×4 al 75–80 % 1RM</td></tr></tbody></table></div>
+      <label class="done"><input type="checkbox" data-k="w6-f">Fuerza hecha</label>
+    </div>
+    <div class="block metcon" data-id="w6" data-mode="c">
+      <div class="seg" role="group" aria-label="Versión del metcon">
+        <button type="button" data-v="c" aria-pressed="true">Con complex</button>
+        <button type="button" data-v="s" aria-pressed="false">Sin complex</button>
+      </div>
+      <div class="v v-c">
+        <h3>Metcon <em>EMOM 20'</em></h3>
+        <p class="sub">5 rondas de 4 minutos</p>
+        <div class="tw"><table><thead><tr><th>Min</th><th>Movimiento</th></tr></thead><tbody><tr><td>1</td><td><span class="cx">Complex:</span> 5 Deadlift + 3 Hang Power Clean (45 % 1RM del clean)</td></tr><tr><td>2</td><td>12 cal bike</td></tr><tr><td>3</td><td>10 burpee lateral sobre la barra, sin brazos arriba</td></tr><tr><td>4</td><td>20 sit-ups con las manos al pecho</td></tr></tbody></table></div>
+      </div>
+      <div class="v v-s">
+        <h3>Metcon <em>EMOM 20'</em></h3>
+        <p class="sub">5 rondas de 4 minutos</p>
+        <p class="mat">Mismo peso todo el metcon: 1 KB, sugerido 20 kg (16 kg si el goblet se rompe)</p>
+        <div class="tw"><table><thead><tr><th>Min</th><th>Movimiento</th></tr></thead><tbody><tr><td>1</td><td>20 KB swing ruso</td></tr><tr><td>2</td><td>15 cal bike</td></tr><tr><td>3</td><td>12 burpee lateral sobre la KB, sin brazos arriba</td></tr><tr><td>4</td><td>15 KB Goblet Squat</td></tr></tbody></table></div>
+      </div>
+      <label class="done"><input type="checkbox" data-k="w6-m">Metcon hecho</label>
+    </div>
+  </div>
+</section>
+<h2 class="week">Bloque 3 · WOD 7–9</h2>
+<section class="wod" style="--c:var(--blue)">
+  <button type="button" class="tog" aria-expanded="true"><div><h2>WOD 7 · Front Squat</h2><small>Ascendente RPE 8 + For Time 20'</small></div><span class="chev"></span></button>
+  <div class="body">
+    <div class="block">
+      <h3>Fuerza <em>Descanso 2'</em></h3>
+      <div class="tw"><table><thead><tr><th>Ejercicio</th><th>Esquema</th></tr></thead><tbody><tr><td>Front Squat</td><td>5-5-3-3-3-3 en ascendente hasta RPE 8</td></tr></tbody></table></div>
+      <label class="done"><input type="checkbox" data-k="w7-f">Fuerza hecha</label>
+    </div>
+    <div class="block metcon" data-id="w7" data-mode="c">
+      <div class="seg" role="group" aria-label="Versión del metcon">
+        <button type="button" data-v="c" aria-pressed="true">Con complex</button>
+        <button type="button" data-v="s" aria-pressed="false">Sin complex</button>
+      </div>
+      <div class="v v-c">
+        <h3>Metcon <em>For Time · cap 20'</em></h3>
+        <p class="sub">3 rondas</p>
+        <div class="tw"><table><thead><tr><th>Reps</th><th>Movimiento</th></tr></thead><tbody><tr><td>400 m</td><td>Carrera</td></tr><tr><td>5</td><td><span class="cx">Complex:</span> 1 Power Clean + 2 Front Squat (45–50 % 1RM del front squat)</td></tr><tr><td>20</td><td>Zancadas alternas sin carga</td></tr></tbody></table></div>
+      </div>
+      <div class="v v-s">
+        <h3>Metcon <em>For Time · cap 20'</em></h3>
+        <p class="sub">3 rondas</p>
+        <p class="mat">Mismo peso todo el metcon: 2 DB, sugerido 15 kg cada una (12,5 kg si el hang power clean se rompe)</p>
+        <div class="tw"><table><thead><tr><th>Reps</th><th>Movimiento</th></tr></thead><tbody><tr><td>400 m</td><td>Carrera</td></tr><tr><td>15</td><td>DB Front Squat</td></tr><tr><td>10</td><td>DB Hang Power Clean</td></tr><tr><td>20</td><td>Zancadas alternas con las DB en front rack</td></tr></tbody></table></div>
+      </div>
+      <label class="done"><input type="checkbox" data-k="w7-m">Metcon hecho</label>
+    </div>
+  </div>
+</section>
+<section class="wod" style="--c:var(--red)">
+  <button type="button" class="tog" aria-expanded="true"><div><h2>WOD 8 · Back Squat al cajón</h2><small>5×4 + EMOM 20'</small></div><span class="chev"></span></button>
+  <div class="body">
+    <div class="block">
+      <h3>Fuerza <em>Descanso 2'</em></h3>
+      <div class="tw"><table><thead><tr><th>Ejercicio</th><th>Esquema</th></tr></thead><tbody><tr><td>Back Squat al cajón</td><td>5×4 al 70 %, controlado al cajón, sin rebotar y subiendo rápido</td></tr></tbody></table></div>
+      <label class="done"><input type="checkbox" data-k="w8-f">Fuerza hecha</label>
+    </div>
+    <div class="block metcon" data-id="w8" data-mode="c">
+      <div class="seg" role="group" aria-label="Versión del metcon">
+        <button type="button" data-v="c" aria-pressed="true">Con complex</button>
+        <button type="button" data-v="s" aria-pressed="false">Sin complex</button>
+      </div>
+      <div class="v v-c">
+        <h3>Metcon <em>EMOM 20'</em></h3>
+        <p class="sub">10 rondas alternas</p>
+        <div class="tw"><table><thead><tr><th>Min</th><th>Movimiento</th></tr></thead><tbody><tr><td>Impar</td><td><span class="cx">Complex:</span> 3 Hang Power Clean + 6 Reverse Lunge en front rack, 3 por pierna (40 % 1RM del clean)</td></tr><tr><td>Par</td><td>12 cal remo</td></tr></tbody></table></div>
+      </div>
+      <div class="v v-s">
+        <h3>Metcon <em>EMOM 20'</em></h3>
+        <p class="sub">5 rondas de 4 minutos</p>
+        <p class="mat">Mismo peso todo el metcon: 2 DB, sugerido 15 kg cada una (12,5 kg si el hang power clean se rompe)</p>
+        <div class="tw"><table><thead><tr><th>Min</th><th>Movimiento</th></tr></thead><tbody><tr><td>1</td><td>14 DB Hang Power Clean</td></tr><tr><td>2</td><td>15 cal remo</td></tr><tr><td>3</td><td>16 DB Reverse Lunge en front rack, 8 por pierna</td></tr><tr><td>4</td><td>12 box jump (step-down)</td></tr></tbody></table></div>
+      </div>
+      <label class="done"><input type="checkbox" data-k="w8-m">Metcon hecho</label>
+    </div>
+  </div>
+</section>
+<section class="wod" style="--c:var(--gold)">
+  <button type="button" class="tog" aria-expanded="true"><div><h2>WOD 9 · Clean</h2><small>EMOM 12' + Front Squat + Chipper 20'</small></div><span class="chev"></span></button>
+  <div class="body">
+    <div class="block">
+      <h3>Fuerza <em>EMOM + 2'</em></h3>
+      <div class="tw"><table><thead><tr><th>Ejercicio</th><th>Esquema</th></tr></thead><tbody><tr><td>A. Clean</td><td>EMOM 12': impar 1 rep al 80 %, par 2 reps al 70 %</td></tr><tr><td>B. Front Squat</td><td>3×3 al 75 %, descanso de 2'</td></tr></tbody></table></div>
+      <label class="done"><input type="checkbox" data-k="w9-f">Fuerza hecha</label>
+    </div>
+    <div class="block metcon" data-id="w9" data-mode="c">
+      <div class="seg" role="group" aria-label="Versión del metcon">
+        <button type="button" data-v="c" aria-pressed="true">Con complex</button>
+        <button type="button" data-v="s" aria-pressed="false">Sin complex</button>
+      </div>
+      <div class="v v-c">
+        <h3>Metcon <em>For Time · cap 20'</em></h3>
+        <p class="sub">Chipper</p>
+        <div class="tw"><table><thead><tr><th>Reps</th><th>Movimiento</th></tr></thead><tbody><tr><td>30</td><td>Cal remo</td></tr><tr><td>30</td><td>KB swing ruso</td></tr><tr><td>20</td><td><span class="cx">Complex:</span> 1 Deadlift + 1 Hang Power Clean + 1 Front Squat = 1 rep (40 % 1RM del clean)</td></tr><tr><td>30</td><td>Box step-over</td></tr><tr><td>30</td><td>Cal remo</td></tr></tbody></table></div>
+      </div>
+      <div class="v v-s">
+        <h3>Metcon <em>For Time · cap 20'</em></h3>
+        <p class="sub">Chipper</p>
+        <p class="mat">Mismo peso todo el metcon: 1 KB, sugerido 20 kg (16 kg si el goblet se rompe)</p>
+        <div class="tw"><table><thead><tr><th>Reps</th><th>Movimiento</th></tr></thead><tbody><tr><td>30</td><td>Cal remo</td></tr><tr><td>40</td><td>KB swing ruso</td></tr><tr><td>30</td><td>KB Goblet Squat</td></tr><tr><td>30</td><td>Box step-over con la KB en goblet</td></tr><tr><td>30</td><td>Cal remo</td></tr></tbody></table></div>
+      </div>
+      <label class="done"><input type="checkbox" data-k="w9-m">Metcon hecho</label>
+    </div>
+  </div>
+</section>
+<h2 class="week">Bloque 4 · WOD 10–12</h2>
+<section class="wod" style="--c:var(--orange)">
+  <button type="button" class="tog" aria-expanded="true"><div><h2>WOD 10 · Deadlift</h2><small>3×3 pesado + For Time 20'</small></div><span class="chev"></span></button>
+  <div class="body">
+    <div class="block">
+      <h3>Fuerza <em>Descanso 3'</em></h3>
+      <div class="tw"><table><thead><tr><th>Ejercicio</th><th>Esquema</th></tr></thead><tbody><tr><td>Deadlift</td><td>3×3 al 80–85 % 1RM</td></tr></tbody></table></div>
+      <label class="done"><input type="checkbox" data-k="w10-f">Fuerza hecha</label>
+    </div>
+    <div class="block metcon" data-id="w10" data-mode="c">
+      <div class="seg" role="group" aria-label="Versión del metcon">
+        <button type="button" data-v="c" aria-pressed="true">Con complex</button>
+        <button type="button" data-v="s" aria-pressed="false">Sin complex</button>
+      </div>
+      <div class="v v-c">
+        <h3>Metcon <em>For Time · cap 20'</em></h3>
+        <p class="sub">4 rondas</p>
+        <div class="tw"><table><thead><tr><th>Reps</th><th>Movimiento</th></tr></thead><tbody><tr><td>6+6+6</td><td><span class="cx">Complex:</span> RDL + Bent-over Row + Hang Power Clean (35–40 % 1RM del clean)</td></tr><tr><td>200 m</td><td>Carrera</td></tr><tr><td>10</td><td>Burpee lateral sobre la barra, sin brazos arriba</td></tr></tbody></table></div>
+      </div>
+      <div class="v v-s">
+        <h3>Metcon <em>For Time · cap 20'</em></h3>
+        <p class="sub">4 rondas</p>
+        <p class="mat">Mismo peso todo el metcon: 2 DB, sugerido 15 kg cada una (12,5 kg si el hang power clean se rompe)</p>
+        <div class="tw"><table><thead><tr><th>Reps</th><th>Movimiento</th></tr></thead><tbody><tr><td>12</td><td>DB RDL</td></tr><tr><td>12</td><td>DB Bent-over Row</td></tr><tr><td>8</td><td>DB Hang Power Clean</td></tr><tr><td>200 m</td><td>Carrera</td></tr><tr><td>12</td><td>Burpee lateral sobre las DB, sin brazos arriba</td></tr></tbody></table></div>
+      </div>
+      <label class="done"><input type="checkbox" data-k="w10-m">Metcon hecho</label>
+    </div>
+  </div>
+</section>
+<section class="wod" style="--c:var(--red)">
+  <button type="button" class="tog" aria-expanded="true"><div><h2>WOD 11 · Back Squat</h2><small>5×3 + EMOM 20'</small></div><span class="chev"></span></button>
+  <div class="body">
+    <div class="block">
+      <h3>Fuerza <em>Descanso 2'30''</em></h3>
+      <div class="tw"><table><thead><tr><th>Ejercicio</th><th>Esquema</th></tr></thead><tbody><tr><td>Back Squat</td><td>5×3 al 80 % 1RM</td></tr></tbody></table></div>
+      <label class="done"><input type="checkbox" data-k="w11-f">Fuerza hecha</label>
+    </div>
+    <div class="block metcon" data-id="w11" data-mode="c">
+      <div class="seg" role="group" aria-label="Versión del metcon">
+        <button type="button" data-v="c" aria-pressed="true">Con complex</button>
+        <button type="button" data-v="s" aria-pressed="false">Sin complex</button>
+      </div>
+      <div class="v v-c">
+        <h3>Metcon <em>EMOM 20'</em></h3>
+        <p class="sub">5 rondas de 4 minutos</p>
+        <div class="tw"><table><thead><tr><th>Min</th><th>Movimiento</th></tr></thead><tbody><tr><td>1</td><td><span class="cx">Complex:</span> 3 Power Clean + 3 Front Squat (50 % 1RM del front squat)</td></tr><tr><td>2</td><td>15 cal bike</td></tr><tr><td>3</td><td>12 box jump (step-down)</td></tr><tr><td>4</td><td>30 dobles o 60 simples de comba</td></tr></tbody></table></div>
+      </div>
+      <div class="v v-s">
+        <h3>Metcon <em>EMOM 20'</em></h3>
+        <p class="sub">5 rondas de 4 minutos</p>
+        <p class="mat">Mismo peso todo el metcon: 2 DB, sugerido 15 kg cada una (12,5 kg si el hang power clean se rompe)</p>
+        <div class="tw"><table><thead><tr><th>Min</th><th>Movimiento</th></tr></thead><tbody><tr><td>1</td><td>14 DB Front Squat</td></tr><tr><td>2</td><td>18 cal bike</td></tr><tr><td>3</td><td>12 box jump (step-down)</td></tr><tr><td>4</td><td>14 DB Hang Power Clean</td></tr></tbody></table></div>
+      </div>
+      <label class="done"><input type="checkbox" data-k="w11-m">Metcon hecho</label>
+    </div>
+  </div>
+</section>
+<section class="wod" style="--c:var(--gold)">
+  <button type="button" class="tog" aria-expanded="true"><div><h2>WOD 12 · Clean + Front Squat</h2><small>Complex pesado + For Time 20'</small></div><span class="chev"></span></button>
+  <div class="body">
+    <div class="block">
+      <h3>Fuerza <em>12'</em></h3>
+      <div class="tw"><table><thead><tr><th>Ejercicio</th><th>Esquema</th></tr></thead><tbody><tr><td>Clean + 2 Front Squat</td><td>En 12', subir hasta un 1+2 pesado del día, sin fallar</td></tr></tbody></table></div>
+      <label class="done"><input type="checkbox" data-k="w12-f">Fuerza hecha</label>
+    </div>
+    <div class="block metcon" data-id="w12" data-mode="c">
+      <div class="seg" role="group" aria-label="Versión del metcon">
+        <button type="button" data-v="c" aria-pressed="true">Con complex</button>
+        <button type="button" data-v="s" aria-pressed="false">Sin complex</button>
+      </div>
+      <div class="v v-c">
+        <h3>Metcon <em>For Time · cap 20'</em></h3>
+        <p class="sub">6-5-4-3-2-1</p>
+        <div class="tw"><table><thead><tr><th>Reps</th><th>Movimiento</th></tr></thead><tbody><tr><td>6→1</td><td><span class="cx">Complex:</span> 1 Hang Power Clean + 1 Front Squat = 1 rep (45 % 1RM del clean)</td></tr><tr><td>10</td><td>Cal remo en cada ronda</td></tr><tr><td>10</td><td>Box step-over en cada ronda</td></tr></tbody></table></div>
+      </div>
+      <div class="v v-s">
+        <h3>Metcon <em>For Time · cap 20'</em></h3>
+        <p class="sub">12-10-8-6-4-2</p>
+        <p class="mat">Mismo peso todo el metcon: 2 DB, sugerido 15 kg cada una (12,5 kg si el hang power clean se rompe)</p>
+        <div class="tw"><table><thead><tr><th>Reps</th><th>Movimiento</th></tr></thead><tbody><tr><td>12→2</td><td>DB Hang Power Clean</td></tr><tr><td>12→2</td><td>DB Front Squat</td></tr><tr><td>10</td><td>Cal remo en cada ronda</td></tr></tbody></table></div>
+      </div>
+      <label class="done"><input type="checkbox" data-k="w12-m">Metcon hecho</label>
     </div>
   </div>
 </section>
@@ -151,10 +439,11 @@ tr:last-child td{border-bottom:0}
   <h2>Notas</h2>
   <ul>
     <li>Redondea a 2,5 kg en clean y a 5 kg en deadlift.</li>
-    <li>En un complex la barra no se suelta. La carga la marca el movimiento más débil, normalmente el hang power clean o el front squat.</li>
+    <li>Con complex: la barra no se suelta. La carga la marca el movimiento más débil, normalmente el hang power clean o el front squat.</li>
+    <li>Sin complex: usa la misma DB o KB durante todo el metcon. Elige el peso con el que puedas hacer el movimiento más difícil del día (hang power clean o front squat) sin parar más de 2–3 veces por serie.</li>
     <li>En los EMOM conviene que cada estación te deje 10–15'' de descanso. Si en la primera ronda acabas justo al límite, baja la carga y mantén las reps.</li>
-    <li>WOD 2: puedes partir el complex (6 DL, soltar, 6 HPC + 6 FS), pero intenta que la barra no toque el suelo dentro de cada movimiento. Si no llegas al cap, quita carga antes que reps.</li>
-    <li>WOD 3: son 10 complex en total. Si en la ronda 3 empiezas a tirar con los brazos o a recibir blando, baja 5 kg.</li>
+    <li>En los For Time, si ves que no llegas al cap, quita carga antes que reps.</li>
+    <li>La carga sube de bloque en bloque (deadlift 4×4 → 3×3, back squat 5×5 → 5×3). Si en el WOD 10 o el 11 la técnica se rompe, quédate en el porcentaje bajo del rango.</li>
   </ul>
   <button type="button" class="reset">Desmarcar todo</button>
 </section>
@@ -162,15 +451,11 @@ tr:last-child td{border-bottom:0}
 
 <script>
 (function(){
-  var KEY='wods-fuerza-complex-v1';
+  var KEY='wods-fuerza-complex-v2';
   var state={};
   try{ state=JSON.parse(localStorage.getItem(KEY)||'{}')||{}; }catch(e){ state={}; }
+  if(!state.mode) state.mode={};
   function save(){ try{ localStorage.setItem(KEY,JSON.stringify(state)); }catch(e){} }
-
-  document.querySelectorAll('input[data-k]').forEach(function(cb){
-    cb.checked=!!state[cb.dataset.k];
-    cb.addEventListener('change',function(){ state[cb.dataset.k]=cb.checked; save(); });
-  });
 
   function bindTap(el,fn){
     var touched=false;
@@ -178,16 +463,45 @@ tr:last-child td{border-bottom:0}
     el.addEventListener('click',function(){ if(!touched) fn(); });
   }
 
-  document.querySelectorAll('.wod').forEach(function(card){
-    var btn=card.querySelector(':scope > button');
+  document.querySelectorAll('input[data-k]').forEach(function(cb){
+    cb.checked=!!state[cb.dataset.k];
+    cb.addEventListener('change',function(){ state[cb.dataset.k]=cb.checked; save(); });
+  });
+
+  document.querySelectorAll('.tog').forEach(function(btn){
+    var card=btn.closest('.wod');
     bindTap(btn,function(){
       var closed=card.classList.toggle('closed');
       btn.setAttribute('aria-expanded',closed?'false':'true');
     });
   });
 
+  var metcons=document.querySelectorAll('.metcon');
+  var allBtns=document.querySelectorAll('[data-all]');
+  function setMode(m,v){
+    m.dataset.mode=v;
+    m.querySelectorAll('.seg button').forEach(function(b){ b.setAttribute('aria-pressed',b.dataset.v===v?'true':'false'); });
+    state.mode[m.dataset.id]=v;
+  }
+  function syncGlobal(){
+    var modes=Array.prototype.map.call(metcons,function(m){return m.dataset.mode;});
+    var same=modes.every(function(x){return x===modes[0];})?modes[0]:null;
+    allBtns.forEach(function(b){ b.setAttribute('aria-pressed',b.dataset.all===same?'true':'false'); });
+  }
+  metcons.forEach(function(m){
+    setMode(m,state.mode[m.dataset.id]||'c');
+    m.querySelectorAll('.seg button').forEach(function(b){
+      bindTap(b,function(){ setMode(m,b.dataset.v); save(); syncGlobal(); });
+    });
+  });
+  allBtns.forEach(function(b){
+    bindTap(b,function(){ metcons.forEach(function(m){ setMode(m,b.dataset.all); }); save(); syncGlobal(); });
+  });
+  syncGlobal();
+
   bindTap(document.querySelector('.reset'),function(){
-    state={}; save();
+    Object.keys(state).forEach(function(k){ if(k!=='mode') delete state[k]; });
+    save();
     document.querySelectorAll('input[data-k]').forEach(function(cb){ cb.checked=false; });
   });
 })();
